@@ -15,28 +15,30 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.readr.app.model.Book
+import com.readr.app.data.model.EntryType
+import com.readr.app.data.model.ReadingEntry
 
 @Composable
 fun HomeScreen() {
-    val currentlyReading = Book(
-        "Atomic Habits",
-        "James Clear",
-        "https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg",
-        0.65f
+    val currentlyReading = ReadingEntry(
+        title = "Atomic Habits",
+        author = "James Clear",
+        coverUrl = "https://covers.openlibrary.org/b/isbn/9780735211292-L.jpg",
+        progress = 0.65f,
+        type = EntryType.BOOK
     )
 
     val popularBooks = listOf(
-        Book("The Alchemist", "Paulo Coelho", "https://covers.openlibrary.org/b/isbn/9780062315007-L.jpg"),
-        Book("1984", "George Orwell", "https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg"),
-        Book("Deep Work", "Cal Newport", "https://covers.openlibrary.org/b/isbn/9781455586691-L.jpg"),
-        Book("The Great Gatsby", "F. Scott Fitzgerald", "https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg")
+        ReadingEntry(title = "The Alchemist", author = "Paulo Coelho", coverUrl = "https://covers.openlibrary.org/b/isbn/9780062315007-L.jpg", type = EntryType.BOOK),
+        ReadingEntry(title = "1984", author = "George Orwell", coverUrl = "https://covers.openlibrary.org/b/isbn/9780451524935-L.jpg", type = EntryType.BOOK),
+        ReadingEntry(title = "Deep Work", author = "Cal Newport", coverUrl = "https://covers.openlibrary.org/b/isbn/9781455586691-L.jpg", type = EntryType.BOOK),
+        ReadingEntry(title = "The Great Gatsby", author = "F. Scott Fitzgerald", coverUrl = "https://covers.openlibrary.org/b/isbn/9780743273565-L.jpg", type = EntryType.BOOK)
     )
 
     val fictionBooks = listOf(
-        Book("The Hobbit", "J.R.R. Tolkien", "https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg"),
-        Book("Harry Potter", "J.K. Rowling", "https://covers.openlibrary.org/b/isbn/9780545582889-L.jpg"),
-        Book("Dune", "Frank Herbert", "https://covers.openlibrary.org/b/isbn/9780441172719-L.jpg")
+        ReadingEntry(title = "The Hobbit", author = "J.R.R. Tolkien", coverUrl = "https://covers.openlibrary.org/b/isbn/9780547928227-L.jpg", type = EntryType.BOOK),
+        ReadingEntry(title = "Harry Potter", author = "J.K. Rowling", coverUrl = "https://covers.openlibrary.org/b/isbn/9780545582889-L.jpg", type = EntryType.BOOK),
+        ReadingEntry(title = "Dune", author = "Frank Herbert", coverUrl = "https://covers.openlibrary.org/b/isbn/9780441172719-L.jpg", type = EntryType.BOOK)
     )
 
     LazyColumn(
@@ -85,7 +87,7 @@ fun SectionHeader(title: String) {
 }
 
 @Composable
-fun CurrentlyReadingCard(book: Book) {
+fun CurrentlyReadingCard(book: ReadingEntry) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
@@ -131,7 +133,7 @@ fun CurrentlyReadingCard(book: Book) {
 }
 
 @Composable
-fun BookItem(book: Book) {
+fun BookItem(book: ReadingEntry) {
     Column(modifier = Modifier.width(120.dp)) {
         AsyncImage(
             model = book.coverUrl,
