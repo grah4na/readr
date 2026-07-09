@@ -13,3 +13,4 @@
 .externalNativeBuild
 .cxx
 *.hprof
+/app/src/main/res/mipmap-*/ic_launcher.png
