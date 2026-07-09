@@ -21,11 +21,13 @@ private val DarkColorScheme = darkColorScheme(
     tertiary = LightGrey,
     background = Black,
     surface = DarkCharcoal,
+    surfaceVariant = DarkCharcoal,
     onPrimary = Black,
     onSecondary = OffWhite,
     onTertiary = Black,
     onBackground = OffWhite,
-    onSurface = OffWhite
+    onSurface = OffWhite,
+    onSurfaceVariant = OffWhite
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -34,11 +36,13 @@ private val LightColorScheme = lightColorScheme(
     tertiary = DarkCharcoal,
     background = OffWhite,
     surface = LightGrey,
+    surfaceVariant = LightGrey,
     onPrimary = Black,
     onSecondary = Black,
     onTertiary = OffWhite,
     onBackground = Black,
-    onSurface = Black
+    onSurface = Black,
+    onSurfaceVariant = DarkCharcoal
 )
 
 @Composable
