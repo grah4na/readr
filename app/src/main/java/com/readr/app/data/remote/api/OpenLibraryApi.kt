@@ -2,6 +2,7 @@ package com.readr.app.data.remote.api
 
 import com.readr.app.data.remote.model.OpenLibraryBookResponse
 import com.readr.app.data.remote.model.OpenLibraryResponse
+import com.readr.app.data.remote.model.OpenLibraryWorkResponse
 import retrofit2.http.GET
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -17,4 +18,9 @@ interface OpenLibraryApi {
     suspend fun getBookByIsbn(
         @Path("isbn") isbn: String
     ): OpenLibraryBookResponse
+
+    @GET("{key}.json")
+    suspend fun getWork(
+        @Path("key", encoded = true) key: String
+    ): OpenLibraryWorkResponse
 }

@@ -7,6 +7,7 @@ data class OpenLibraryResponse(
 )
 
 data class OpenLibraryDoc(
+    val key: String? = null,
     val title: String? = null,
     @SerializedName("author_name")
     val authorName: List<String>? = null,
@@ -19,16 +20,34 @@ data class OpenLibraryDoc(
 )
 
 data class OpenLibraryWorkResponse(
-    val description: String? = null
-)
+    val title: String? = null,
+    val description: Any? = null
+) {
+    fun descriptionText(): String {
+        return when (val d = description) {
+            is String -> d
+            is Map<*, *> -> (d["value"] as? String) ?: ""
+            else -> ""
+        }
+    }
+}
 
 data class OpenLibraryBookResponse(
     val title: String? = null,
     val authors: List<OpenLibraryAuthor>? = null,
     val covers: List<Long>? = null,
     @SerializedName("number_of_pages")
-    val pages: Int? = null
-)
+    val pages: Int? = null,
+    val description: Any? = null
+) {
+    fun descriptionText(): String {
+        return when (val d = description) {
+            is String -> d
+            is Map<*, *> -> (d["value"] as? String) ?: ""
+            else -> ""
+        }
+    }
+}
 
 data class OpenLibraryAuthor(
     val name: String? = null
