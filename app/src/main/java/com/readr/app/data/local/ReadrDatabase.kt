@@ -28,7 +28,7 @@ import com.readr.app.data.model.TriggerWarning
         LearningNote::class,
         TriggerWarning::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -50,7 +50,7 @@ abstract class ReadrDatabase : RoomDatabase() {
                     context.applicationContext,
                     ReadrDatabase::class.java,
                     "readr_database"
-                ).build()
+                ).fallbackToDestructiveMigration().build()
                 INSTANCE = instance
                 instance
             }
