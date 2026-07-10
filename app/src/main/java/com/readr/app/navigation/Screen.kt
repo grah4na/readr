@@ -14,6 +14,10 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object Add : Screen("add", "Add", Icons.Default.AddCircle)
     object Notes : Screen("notes", "Notes", Icons.Default.StickyNote2)
     object Profile : Screen("profile", "Profile", Icons.Default.Person)
+    object ManualEntry : Screen("manual_entry", "", Icons.Default.AddCircle)
+    object EntryDetail : Screen("entry_detail/{entryId}", "", Icons.Default.Home) {
+        fun createRoute(entryId: Long) = "entry_detail/$entryId"
+    }
 
     companion object {
         val items = listOf(Home, Search, Add, Notes, Profile)
