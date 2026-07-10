@@ -15,13 +15,12 @@ data class ReadingEntry(
     val rating: Int = 0,
     val isbn: String = "",
     val pages: Int = 0,
-    val articleUrl: String = "",
-    val siteName: String = "",
+    val description: String = "",
     val dateStarted: Long = 0L,
     val dateFinished: Long = 0L,
     val dateAdded: Long = System.currentTimeMillis()
 )
 
 enum class EntryType {
-    BOOK, ARTICLE
+    BOOK
 }
