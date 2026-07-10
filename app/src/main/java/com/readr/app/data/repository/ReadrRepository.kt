@@ -15,11 +15,13 @@ import com.readr.app.data.model.ReadingSession
 import com.readr.app.data.model.Review
 import com.readr.app.data.model.TriggerWarning
 import com.readr.app.data.remote.NetworkModule
-import com.readr.app.data.remote.api.OpenLibraryApi
 import com.readr.app.data.remote.api.GoogleBooksApi
+import com.readr.app.data.remote.api.OpenLibraryApi
+import com.readr.app.data.remote.api.WikipediaApi
 import com.readr.app.data.remote.model.GoogleBookItem
 import com.readr.app.data.remote.model.OpenLibraryDoc
 import kotlinx.coroutines.flow.Flow
+import java.net.URLEncoder
 
 class ReadrRepository(
     database: ReadrDatabase
@@ -33,6 +35,7 @@ class ReadrRepository(
 
     private val openLibraryApi: OpenLibraryApi = NetworkModule.openLibraryApi
     private val googleBooksApi: GoogleBooksApi = NetworkModule.googleBooksApi
+    private val wikipediaApi: WikipediaApi = NetworkModule.wikipediaApi
 
     fun getAllEntries(): Flow<List<ReadingEntry>> = entryDao.getAllEntries()
     fun getEntriesByType(type: EntryType): Flow<List<ReadingEntry>> = entryDao.getEntriesByType(type)
@@ -98,12 +101,43 @@ class ReadrRepository(
                     title = response.title,
                     author = response.authors?.firstOrNull()?.name ?: "Unknown",
                     isbn = isbn,
-                    pages = response.pages ?: 0
+                    pages = response.pages ?: 0,
+                    description = response.descriptionText()
                 )
             } else null
         } catch (e: Exception) {
             null
         }
+    }
+
+    suspend fun fetchDescriptionBySearch(title: String, author: String, isbn: String = ""): String {
+        val query = if (author.isNotBlank() && author != "Unknown") "$title ${author.take(30)}" else title
+        return try {
+            if (isbn.isNotBlank()) {
+                val fromIsbn = fetchBookByIsbnOpenLibrary(isbn)?.description?.takeIf { it.isNotBlank() }
+                if (fromIsbn != null) return fromIsbn
+            }
+            val docs = openLibraryApi.searchBooks(query, limit = 5).docs.orEmpty()
+            docs.firstOrNull { !it.isbn.isNullOrEmpty() }?.isbn?.firstOrNull()?.let { i ->
+                val fromIsbn = fetchBookByIsbnOpenLibrary(i)?.description?.takeIf { it.isNotBlank() }
+                if (fromIsbn != null) return fromIsbn
+            }
+            docs.firstOrNull { it.key != null }?.key?.let { key ->
+                try {
+                    openLibraryApi.getWork(key.trimStart('/')).descriptionText().takeIf { it.isNotBlank() }
+                } catch (e: Exception) { null }
+            }?.also { return it }
+            fetchWikipediaDescription(title) ?: ""
+        } catch (e: Exception) { "" }
+    }
+
+    suspend fun fetchWikipediaDescription(title: String): String? {
+        val mainTitle = title.substringBefore(":").substringBefore(" (").trim().take(100)
+        return try {
+            val encoded = URLEncoder.encode(mainTitle, "UTF-8")
+            val response = wikipediaApi.getSummary(encoded)
+            response.extract?.take(500)
+        } catch (e: Exception) { null }
     }
 
     suspend fun fetchBookByIsbnGoogleBooks(isbn: String): ReadingEntry? {
@@ -117,7 +151,8 @@ class ReadrRepository(
                 author = info.authors?.joinToString(", ") ?: "Unknown",
                 coverUrl = info.imageLinks?.thumbnail?.replace("http://", "https://") ?: "",
                 isbn = isbn,
-                pages = info.pageCount ?: 0
+                pages = info.pageCount ?: 0,
+                description = info.description ?: ""
             )
         } catch (e: Exception) {
             null
