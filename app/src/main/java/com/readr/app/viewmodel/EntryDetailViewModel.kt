@@ -4,6 +4,10 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.readr.app.ReadrApp
+import com.readr.app.data.local.entity.CommunityNoteEntity
+import com.readr.app.data.local.entity.NoteEntity
+import com.readr.app.data.local.entity.QuoteEntity
+import com.readr.app.data.local.entity.ReviewEntity
 import com.readr.app.data.model.ReadingEntry
 import com.readr.app.data.model.ReadingSession
 import com.readr.app.data.repository.ReadrRepository
@@ -25,6 +29,18 @@ class EntryDetailViewModel(application: Application) : AndroidViewModel(applicat
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private val _quotes = MutableStateFlow<List<QuoteEntity>>(emptyList())
+    val quotes: StateFlow<List<QuoteEntity>> = _quotes.asStateFlow()
+
+    private val _review = MutableStateFlow<ReviewEntity?>(null)
+    val review: StateFlow<ReviewEntity?> = _review.asStateFlow()
+
+    private val _notes = MutableStateFlow<List<NoteEntity>>(emptyList())
+    val notes: StateFlow<List<NoteEntity>> = _notes.asStateFlow()
+
+    private val _communityNotes = MutableStateFlow<List<CommunityNoteEntity>>(emptyList())
+    val communityNotes: StateFlow<List<CommunityNoteEntity>> = _communityNotes.asStateFlow()
+
     fun loadEntry(entryId: Long) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -37,6 +53,9 @@ class EntryDetailViewModel(application: Application) : AndroidViewModel(applicat
                 }
             }
             _entry.value = e
+            if (e != null) {
+                loadPhase3Data(e)
+            }
             _isLoading.value = false
         }
         viewModelScope.launch {
@@ -44,6 +63,14 @@ class EntryDetailViewModel(application: Application) : AndroidViewModel(applicat
                 _sessions.value = sessionList
             }
         }
+    }
+
+    private suspend fun loadPhase3Data(entry: ReadingEntry) {
+        val readingLogId = entry.id.toString()
+        _quotes.value = repo.getQuotes(readingLogId)
+        _review.value = repo.getReview(readingLogId)
+        _notes.value = repo.getNotes(readingLogId)
+        _communityNotes.value = repo.getCommunityNotes(entry.isbn)
     }
 
     fun updateProgress(progress: Float) {
@@ -118,5 +145,63 @@ class EntryDetailViewModel(application: Application) : AndroidViewModel(applicat
         viewModelScope.launch {
             repo.deleteEntry(e)
         }
+    }
+
+    fun addQuote(text: String, pageNumber: Int?) {
+        val e = _entry.value ?: return
+        viewModelScope.launch {
+            repo.addQuote(e.id.toString(), text, pageNumber)
+            _quotes.value = repo.getQuotes(e.id.toString())
+        }
+    }
+
+    fun addReview(
+        rating: Int,
+        reviewText: String,
+        spoilerPercent: Float?,
+        whatILearned: String
+    ) {
+        val e = _entry.value ?: return
+        viewModelScope.launch {
+            repo.addReview(e.id.toString(), rating, reviewText, spoilerPercent, whatILearned)
+            _review.value = repo.getReview(e.id.toString())
+        }
+    }
+
+    fun addNote(text: String, pageNumber: Int?, tags: String, type: String) {
+        val e = _entry.value ?: return
+        viewModelScope.launch {
+            repo.addNote(e.id.toString(), text, pageNumber, tags, type)
+            _notes.value = repo.getNotes(e.id.toString())
+        }
+    }
+
+    fun searchNotes(query: String) {
+        val e = _entry.value ?: return
+        viewModelScope.launch {
+            if (query.isBlank()) {
+                _notes.value = repo.getNotes(e.id.toString())
+            } else {
+                _notes.value = repo.searchNotes(e.id.toString(), query)
+            }
+        }
+    }
+
+    fun addCommunityNote(
+        type: String,
+        startPercent: Float,
+        endPercent: Float,
+        noteText: String
+    ) {
+        val e = _entry.value ?: return
+        viewModelScope.launch {
+            repo.addCommunityNote(e.isbn, type, startPercent, endPercent, noteText)
+            _communityNotes.value = repo.getCommunityNotes(e.isbn)
+        }
+    }
+
+    fun canViewSpoiler(spoilerPercent: Float?): Boolean {
+        val progress = _entry.value?.progress ?: 0f
+        return spoilerPercent == null || progress >= spoilerPercent
     }
 }
