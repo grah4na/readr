@@ -7,5 +7,6 @@ data class SearchResult(
     val isbn: String = "",
     val pages: Int = 0,
     val description: String = "",
+    val previewUrl: String = "",
     val source: String = ""
 )

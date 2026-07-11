@@ -16,6 +16,7 @@ data class ReadingEntry(
     val isbn: String = "",
     val pages: Int = 0,
     val description: String = "",
+    val previewUrl: String = "",
     val dateStarted: Long = 0L,
     val dateFinished: Long = 0L,
     val dateAdded: Long = System.currentTimeMillis()
