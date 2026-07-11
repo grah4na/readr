@@ -1,25 +1,35 @@
 package com.readr.app.ui.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Tune
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.readr.app.data.model.SearchResult
+import com.readr.app.ui.theme.PrimaryYellow
 import com.readr.app.viewmodel.SearchViewModel
 import kotlinx.coroutines.launch
 
@@ -34,118 +44,185 @@ fun SearchScreen(
     val isSearching by viewModel.isSearching.collectAsState()
     val scope = rememberCoroutineScope()
 
-    var addedMessage by remember { mutableStateOf<String?>(null) }
+    val popularSearches = listOf(
+        "Fantasy", "Romance", "Science Fiction",
+        "Self Help", "Mystery", "Thriller",
+        "Classics", "Poetry"
+    )
 
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp)
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+        contentPadding = PaddingValues(bottom = 100.dp, top = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
-        OutlinedTextField(
-            value = query,
-            onValueChange = { viewModel.updateQuery(it) },
-            modifier = Modifier.fillMaxWidth(),
-            placeholder = { Text("Search for books...") },
-            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-            trailingIcon = {
-                if (query.isNotEmpty()) {
-                    IconButton(onClick = { viewModel.updateQuery("") }) {
-                        Icon(Icons.Default.Clear, contentDescription = "Clear")
-                    }
-                }
-            },
-            singleLine = true
-        )
+        item {
+            Text(
+                text = "Find your \nnext favorite book",
+                style = MaterialTheme.typography.headlineMedium
+            )
+        }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        item {
+            OutlinedTextField(
+                value = query,
+                onValueChange = { viewModel.updateQuery(it) },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Search by title, author or genre", style = MaterialTheme.typography.bodyMedium) },
+                leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
+                trailingIcon = {
+                    IconButton(onClick = { /* Filter */ }) {
+                        Icon(Icons.Default.Tune, contentDescription = "Filter")
+                    }
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = TextFieldDefaults.outlinedTextFieldColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedBorderColor = PrimaryYellow
+                ),
+                singleLine = true
+            )
+        }
 
-        when {
-            isSearching -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+        if (query.isEmpty()) {
+            item {
+                Text(
+                    text = "Popular Searches",
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    mainAxisSpacing = 8.dp,
+                    crossAxisSpacing = 8.dp
                 ) {
-                    CircularProgressIndicator()
-                }
-            }
-            query.length < 2 -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            Icons.Default.Search,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            "Search for books by title, author, or ISBN",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    popularSearches.forEach { genre ->
+                        SuggestionChip(
+                            onClick = { viewModel.updateQuery(genre) },
+                            label = { Text(genre, fontSize = 12.sp) },
+                            shape = RoundedCornerShape(8.dp),
+                            border = SuggestionChipDefaults.suggestionChipBorder(borderColor = Color.LightGray.copy(alpha = 0.5f))
                         )
                     }
                 }
             }
-            results.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(
-                            "No results found",
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        OutlinedButton(onClick = onNavigateToManualEntry) {
-                            Text("Can't find it? Add manually")
-                        }
+
+            item {
+                Text(
+                    text = "Recommended for you",
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
+
+            // Dummy recommendation if no search
+            items(3) { index ->
+                RecommendedBookItemPlaceholder(index)
+            }
+        } else {
+            if (isSearching) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
                     }
                 }
-            }
-            else -> {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.weight(1f)
-                ) {
-                    items(results, key = { "${it.source}-${it.isbn}-${it.title}" }) { result ->
-                        SearchResultItem(
-                            result = result,
-                            onAdd = {
-                                scope.launch {
-                                    viewModel.addToLibrary(result)
-                                    addedMessage = "\"${result.title}\" added!"
-                                }
+            } else {
+                items(results) { result ->
+                    SearchResultItem(
+                        result = result,
+                        onAdd = {
+                            scope.launch {
+                                viewModel.addToLibrary(result)
                             }
-                        )
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        OutlinedButton(
-                            onClick = onNavigateToManualEntry,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text("Can't find it? Add manually")
                         }
-                        Spacer(modifier = Modifier.height(16.dp))
-                    }
+                    )
                 }
             }
         }
     }
+}
 
-    if (addedMessage != null) {
-        AlertDialog(
-            onDismissRequest = { addedMessage = null },
-            title = { Text("Added") },
-            text = { Text(addedMessage!!) },
-            confirmButton = {
-                TextButton(onClick = { addedMessage = null }) {
-                    Text("OK")
+@Composable
+fun FlowRow(
+    modifier: Modifier = Modifier,
+    mainAxisSpacing: androidx.compose.ui.unit.Dp = 0.dp,
+    crossAxisSpacing: androidx.compose.ui.unit.Dp = 0.dp,
+    content: @Composable () -> Unit
+) {
+    androidx.compose.ui.layout.Layout(
+        modifier = modifier,
+        content = content
+    ) { measurables, constraints ->
+        val placeables = measurables.map { it.measure(constraints) }
+        var y = 0
+        var x = 0
+        var maxY = 0
+        layout(constraints.maxWidth, constraints.maxHeight) {
+            placeables.forEach { placeable ->
+                if (x + placeable.width > constraints.maxWidth) {
+                    x = 0
+                    y += maxY + crossAxisSpacing.roundToPx()
+                    maxY = 0
+                }
+                placeable.placeRelative(x, y)
+                x += placeable.width + mainAxisSpacing.roundToPx()
+                maxY = maxOf(maxY, placeable.height)
+            }
+        }
+    }
+}
+
+@Composable
+fun RecommendedBookItemPlaceholder(index: Int) {
+    val titles = listOf("The Seven Husbands of Evelyn Hugo", "It Ends With Us", "Verity")
+    val authors = listOf("Taylor Jenkins Reid", "Colleen Hoover", "Colleen Hoover")
+    val ratings = listOf(4.6, 4.5, 4.3)
+    val covers = listOf(
+        "https://covers.openlibrary.org/b/isbn/9781501161933-L.jpg",
+        "https://covers.openlibrary.org/b/isbn/9781501110368-L.jpg",
+        "https://covers.openlibrary.org/b/isbn/9781538724736-L.jpg"
+    )
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+    ) {
+        Row(
+            modifier = Modifier.padding(vertical = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            AsyncImage(
+                model = covers[index % covers.size],
+                contentDescription = null,
+                modifier = Modifier
+                    .size(60.dp, 90.dp)
+                    .clip(RoundedCornerShape(8.dp)),
+                contentScale = ContentScale.Crop
+            )
+            Spacer(modifier = Modifier.width(16.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = titles[index % titles.size],
+                    style = MaterialTheme.typography.titleSmall,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Text(
+                    text = authors[index % authors.size],
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(Icons.Default.Star, contentDescription = null, tint = PrimaryYellow, modifier = Modifier.size(14.dp))
+                    Text(
+                        text = " ${ratings[index % ratings.size]}",
+                        style = MaterialTheme.typography.labelSmall
+                    )
                 }
             }
-        )
+            IconButton(onClick = { }) {
+                Icon(Icons.Default.BookmarkBorder, contentDescription = null, tint = Color.LightGray)
+            }
+        }
     }
 }
 
@@ -156,10 +233,10 @@ fun SearchResultItem(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
     ) {
         Row(
-            modifier = Modifier.padding(12.dp),
+            modifier = Modifier.padding(vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
             AsyncImage(
@@ -167,49 +244,29 @@ fun SearchResultItem(
                 contentDescription = null,
                 modifier = Modifier
                     .size(60.dp, 90.dp)
-                    .clip(RoundedCornerShape(4.dp)),
+                    .clip(RoundedCornerShape(8.dp)),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.width(12.dp))
+            Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = result.title,
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = result.author,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    if (result.pages > 0) {
-                        Text(
-                            "${result.pages} pages",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                    Text(
-                        result.source,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                }
+                Text(
+                    text = "${result.pages} pages",
+                    style = MaterialTheme.typography.labelSmall
+                )
             }
             IconButton(onClick = onAdd) {
-                Icon(
-                    Icons.Default.Add,
-                    contentDescription = "Add to library",
-                    tint = MaterialTheme.colorScheme.primary
-                )
+                Icon(Icons.Default.Add, contentDescription = "Add", tint = PrimaryYellow)
             }
         }
     }
