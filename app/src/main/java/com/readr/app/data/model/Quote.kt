@@ -6,7 +6,7 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "quotes",
+    tableName = "quotes_old",
     foreignKeys = [ForeignKey(
         entity = ReadingEntry::class,
         parentColumns = ["id"],

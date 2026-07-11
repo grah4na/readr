@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ReviewDao {
-    @Query("SELECT * FROM reviews WHERE entryId = :entryId LIMIT 1")
+    @Query("SELECT * FROM reviews_old WHERE entryId = :entryId LIMIT 1")
     fun getReviewForEntry(entryId: Long): Flow<Review?>
 
-    @Query("SELECT * FROM reviews ORDER BY dateWritten DESC")
+    @Query("SELECT * FROM reviews_old ORDER BY dateWritten DESC")
     fun getAllReviews(): Flow<List<Review>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

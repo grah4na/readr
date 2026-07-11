@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface QuoteDao {
-    @Query("SELECT * FROM quotes WHERE entryId = :entryId ORDER BY pageNumber ASC")
+    @Query("SELECT * FROM quotes_old WHERE entryId = :entryId ORDER BY pageNumber ASC")
     fun getQuotesForEntry(entryId: Long): Flow<List<Quote>>
 
-    @Query("SELECT * FROM quotes ORDER BY dateAdded DESC")
+    @Query("SELECT * FROM quotes_old ORDER BY dateAdded DESC")
     fun getAllQuotes(): Flow<List<Quote>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
