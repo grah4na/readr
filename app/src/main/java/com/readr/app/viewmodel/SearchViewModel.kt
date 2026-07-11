@@ -42,12 +42,15 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                 .distinctUntilChanged()
                 .flatMapLatest { q ->
                     flow {
-                        _isSearching.value = true
-                        val openLib = repo.searchOpenLibrary(q)
-                        emit(combineResults(openLib, emptyList()))
-                        val google = repo.searchGoogleBooks(q)
-                        emit(combineResults(openLib, google))
-                        _isSearching.value = false
+                        try {
+                            _isSearching.value = true
+                            val openLib = repo.searchOpenLibrary(q)
+                            emit(combineResults(openLib, emptyList()))
+                            val google = repo.searchGoogleBooks(q)
+                            emit(combineResults(openLib, google))
+                        } finally {
+                            _isSearching.value = false
+                        }
                     }
                 }
                 .collect { results ->
@@ -69,7 +72,8 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             coverUrl = enriched.coverUrl,
             isbn = enriched.isbn,
             pages = enriched.pages,
-            description = enriched.description
+            description = enriched.description,
+            previewUrl = enriched.previewUrl
         )
         return repo.insertEntry(entry)
     }
@@ -125,6 +129,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
                     isbn = isbn,
                     pages = info.pageCount ?: 0,
                     description = info.description ?: "",
+                    previewUrl = info.previewLink ?: "",
                     source = "GoogleBooks"
                 )
             )
