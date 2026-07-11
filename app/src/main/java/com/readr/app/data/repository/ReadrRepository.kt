@@ -1,12 +1,20 @@
 package com.readr.app.data.repository
 
 import com.readr.app.data.local.ReadrDatabase
+import com.readr.app.data.local.dao.CommunityNoteDao
 import com.readr.app.data.local.dao.LearningNoteDao
+import com.readr.app.data.local.dao.NewNoteDao
+import com.readr.app.data.local.dao.NewQuoteDao
+import com.readr.app.data.local.dao.NewReviewDao
 import com.readr.app.data.local.dao.QuoteDao
 import com.readr.app.data.local.dao.ReadingEntryDao
 import com.readr.app.data.local.dao.ReadingSessionDao
 import com.readr.app.data.local.dao.ReviewDao
 import com.readr.app.data.local.dao.TriggerWarningDao
+import com.readr.app.data.local.entity.CommunityNoteEntity
+import com.readr.app.data.local.entity.NoteEntity
+import com.readr.app.data.local.entity.QuoteEntity
+import com.readr.app.data.local.entity.ReviewEntity
 import com.readr.app.data.model.EntryType
 import com.readr.app.data.model.LearningNote
 import com.readr.app.data.model.Quote
@@ -32,6 +40,11 @@ class ReadrRepository(
     private val reviewDao: ReviewDao = database.reviewDao()
     private val noteDao: LearningNoteDao = database.learningNoteDao()
     private val warningDao: TriggerWarningDao = database.triggerWarningDao()
+
+    private val newQuoteDao: NewQuoteDao = database.newQuoteDao()
+    private val newReviewDao: NewReviewDao = database.newReviewDao()
+    private val newNoteDao: NewNoteDao = database.newNoteDao()
+    private val communityNoteDao: CommunityNoteDao = database.communityNoteDao()
 
     private val openLibraryApi: OpenLibraryApi = NetworkModule.openLibraryApi
     private val googleBooksApi: GoogleBooksApi = NetworkModule.googleBooksApi
@@ -152,10 +165,98 @@ class ReadrRepository(
                 coverUrl = info.imageLinks?.thumbnail?.replace("http://", "https://") ?: "",
                 isbn = isbn,
                 pages = info.pageCount ?: 0,
-                description = info.description ?: ""
+                description = info.description ?: "",
+                previewUrl = info.previewLink ?: ""
             )
         } catch (e: Exception) {
             null
         }
     }
+
+    suspend fun addQuote(readingLogId: String, text: String, pageNumber: Int?) {
+        newQuoteDao.insert(
+            QuoteEntity(
+                id = java.util.UUID.randomUUID().toString(),
+                readingLogId = readingLogId,
+                text = text,
+                pageNumber = pageNumber,
+                createdAt = System.currentTimeMillis()
+            )
+        )
+    }
+
+    suspend fun getQuotes(readingLogId: String): List<QuoteEntity> =
+        newQuoteDao.getByLogId(readingLogId)
+
+    suspend fun addReview(
+        readingLogId: String,
+        rating: Int,
+        reviewText: String?,
+        spoilerPercent: Float?,
+        whatILearned: String?
+    ) {
+        newReviewDao.insert(
+            ReviewEntity(
+                id = java.util.UUID.randomUUID().toString(),
+                readingLogId = readingLogId,
+                rating = rating,
+                reviewText = reviewText,
+                spoilerPercent = spoilerPercent,
+                whatILearned = whatILearned,
+                createdAt = System.currentTimeMillis()
+            )
+        )
+    }
+
+    suspend fun getReview(readingLogId: String): ReviewEntity? =
+        newReviewDao.getByLogId(readingLogId)
+
+    suspend fun addNote(
+        readingLogId: String,
+        text: String,
+        pageNumber: Int?,
+        tags: String?,
+        type: String
+    ) {
+        newNoteDao.insert(
+            NoteEntity(
+                id = java.util.UUID.randomUUID().toString(),
+                readingLogId = readingLogId,
+                text = text,
+                pageNumber = pageNumber,
+                tags = tags,
+                type = type,
+                createdAt = System.currentTimeMillis()
+            )
+        )
+    }
+
+    suspend fun getNotes(readingLogId: String): List<NoteEntity> =
+        newNoteDao.getByLogId(readingLogId)
+
+    suspend fun searchNotes(readingLogId: String, query: String): List<NoteEntity> =
+        newNoteDao.searchInLog(readingLogId, query)
+
+    suspend fun addCommunityNote(
+        workId: String,
+        type: String,
+        startPercent: Float,
+        endPercent: Float,
+        noteText: String
+    ) {
+        communityNoteDao.insert(
+            CommunityNoteEntity(
+                id = java.util.UUID.randomUUID().toString(),
+                workId = workId,
+                type = type,
+                startPercent = startPercent,
+                endPercent = endPercent,
+                noteText = noteText,
+                createdAt = System.currentTimeMillis()
+            )
+        )
+    }
+
+    suspend fun getCommunityNotes(workId: String): List<CommunityNoteEntity> =
+        communityNoteDao.getByWorkId(workId)
 }
