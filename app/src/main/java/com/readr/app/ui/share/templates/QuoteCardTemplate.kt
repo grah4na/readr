@@ -96,13 +96,13 @@ object QuoteCardTemplate {
         val bottomTextY = 1580f
         val titlePaint = TextPaint().apply {
             color = 0xFF333333.toInt()
-            textSize = 56f
+            this.textSize = 56f
             isAntiAlias = true
             typeface = Typeface.DEFAULT_BOLD
         }
         val authorPaint = TextPaint().apply {
             color = 0xFF777777.toInt()
-            textSize = 44f
+            this.textSize = 44f
             isAntiAlias = true
             typeface = Typeface.DEFAULT
         }
