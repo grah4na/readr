@@ -58,9 +58,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import android.graphics.Bitmap
+import androidx.compose.foundation.BorderStroke
 import com.readr.app.data.local.entity.NoteEntity
 import com.readr.app.data.local.entity.QuoteEntity
 import com.readr.app.data.local.entity.ReviewEntity
+import com.readr.app.data.model.ReadingEntry
 import com.readr.app.data.model.ReadingSession
 import com.readr.app.ui.components.AddNoteSheet
 import com.readr.app.ui.components.AddQuoteBottomSheet
@@ -70,10 +73,19 @@ import com.readr.app.ui.components.CommunityNotesBanner
 import com.readr.app.ui.components.NoteCard
 import com.readr.app.ui.components.QuoteCard
 import com.readr.app.ui.components.ReviewCard
+import com.readr.app.ui.share.CardData
+import com.readr.app.ui.share.CardType
+import com.readr.app.ui.share.ShareBottomSheet
+import com.readr.app.ui.share.ShareCardRenderer
+import com.readr.app.ui.theme.DarkGreen
+import com.readr.app.ui.theme.SageGreen
 import com.readr.app.viewmodel.EntryDetailViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -98,6 +110,19 @@ fun EntryDetailScreen(
     var showAddQuoteSheet by remember { mutableStateOf(false) }
     var showAddReviewSheet by remember { mutableStateOf(false) }
     var showAddNoteSheet by remember { mutableStateOf(false) }
+    var showShareSheet by remember { mutableStateOf(false) }
+    var shareBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    val shareCoroutineScope = rememberCoroutineScope()
+
+    val shareCard: (CardType, CardData) -> Unit = { cardType, data ->
+        shareCoroutineScope.launch {
+            val bitmap = withContext(Dispatchers.Default) {
+                ShareCardRenderer.renderCard(cardType, data)
+            }
+            shareBitmap = bitmap
+            showShareSheet = true
+        }
+    }
 
     val tabs = listOf("Quotes", "Reviews", "Notes", "Preview")
     var selectedTab by remember { mutableIntStateOf(0) }
@@ -136,6 +161,12 @@ fun EntryDetailScreen(
                 viewModel.addNote(text, pageNumber, tags, type)
                 showAddNoteSheet = false
             }
+        )
+    }
+    if (showShareSheet && shareBitmap != null) {
+        ShareBottomSheet(
+            bitmap = shareBitmap!!,
+            onDismiss = { showShareSheet = false }
         )
     }
 
@@ -370,12 +401,29 @@ fun EntryDetailScreen(
                         when (selectedTab) {
                             0 -> QuotesTab(
                                 quotes = quotes,
-                                onAddClick = { showAddQuoteSheet = true }
+                                onAddClick = { showAddQuoteSheet = true },
+                                onShareQuote = { quote ->
+                                    shareCard(CardType.QUOTE, CardData(
+                                        quoteText = quote.text,
+                                        bookTitle = e.title,
+                                        bookAuthor = e.author,
+                                        pageNumber = quote.pageNumber
+                                    ))
+                                }
                             )
                             1 -> ReviewsTab(
                                 review = review,
                                 currentProgress = e.progress,
-                                onAddClick = { showAddReviewSheet = true }
+                                onAddClick = { showAddReviewSheet = true },
+                                onShareReview = {
+                                    shareCard(CardType.RATING, CardData(
+                                        rating = review?.rating,
+                                        bookTitle = e.title,
+                                        bookAuthor = e.author,
+                                        coverBitmap = null,
+                                        whatILearnedSnippet = review?.whatILearned
+                                    ))
+                                }
                             )
                             2 -> NotesTab(
                                 notes = notes,
@@ -397,7 +445,8 @@ fun EntryDetailScreen(
 @Composable
 private fun QuotesTab(
     quotes: List<QuoteEntity>,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    onShareQuote: (QuoteEntity) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
@@ -424,7 +473,19 @@ private fun QuotesTab(
             )
         } else {
             quotes.forEach { quote ->
-                QuoteCard(quote = quote)
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    QuoteCard(quote = quote)
+                    IconButton(
+                        onClick = { onShareQuote(quote) },
+                        modifier = Modifier.align(Alignment.TopEnd)
+                    ) {
+                        Icon(
+                            Icons.Default.Share,
+                            contentDescription = "Share quote",
+                            tint = SageGreen
+                        )
+                    }
+                }
             }
         }
     }
@@ -434,7 +495,8 @@ private fun QuotesTab(
 private fun ReviewsTab(
     review: ReviewEntity?,
     currentProgress: Float,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    onShareReview: () -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
@@ -465,6 +527,19 @@ private fun ReviewsTab(
                 currentProgress = currentProgress,
                 onRevealSpoiler = {}
             )
+            Spacer(modifier = Modifier.height(8.dp))
+            OutlinedButton(
+                onClick = onShareReview,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = DarkGreen
+                ),
+                border = BorderStroke(1.dp, DarkGreen),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Share Rating")
+            }
         }
     }
 }

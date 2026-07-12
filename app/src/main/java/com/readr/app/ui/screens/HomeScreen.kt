@@ -1,5 +1,6 @@
 package com.readr.app.ui.screens
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +17,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -23,18 +25,59 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.readr.app.data.model.ReadingEntry
+import com.readr.app.ui.share.CardData
+import com.readr.app.ui.share.CardType
+import com.readr.app.ui.share.CoverBitmapLoader
+import com.readr.app.ui.share.ShareBottomSheet
+import com.readr.app.ui.share.ShareCardRenderer
 import com.readr.app.ui.theme.PrimaryYellow
+import com.readr.app.ui.theme.SageGreen
 import com.readr.app.ui.theme.SoftBeige
 import com.readr.app.viewmodel.HomeViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun HomeScreen(
     onNavigateToDetail: (Long) -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
+    val context = LocalContext.current
     val wantToRead by viewModel.wantToRead.collectAsState()
     val finished by viewModel.finished.collectAsState()
     val allEntries by viewModel.allEntries.collectAsState()
+    var showShareSheet by remember { mutableStateOf(false) }
+    var shareBitmap by remember { mutableStateOf<Bitmap?>(null) }
+    val shareCoroutineScope = rememberCoroutineScope()
+
+    val shareFinishedBook: (ReadingEntry) -> Unit = { entry ->
+        shareCoroutineScope.launch {
+            val coverBitmap = CoverBitmapLoader.load(context, entry.coverUrl)
+            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            val bitmap = withContext(Dispatchers.Default) {
+                ShareCardRenderer.renderCard(CardType.FINISHED, CardData(
+                    bookTitle = entry.title,
+                    bookAuthor = entry.author,
+                    coverBitmap = coverBitmap,
+                    finishDate = if (entry.dateFinished > 0) dateFormat.format(Date(entry.dateFinished)) else null,
+                    totalPages = if (entry.pages > 0) entry.pages else null
+                ))
+            }
+            shareBitmap = bitmap
+            showShareSheet = true
+        }
+    }
+
+    if (showShareSheet && shareBitmap != null) {
+        ShareBottomSheet(
+            bitmap = shareBitmap!!,
+            onDismiss = { showShareSheet = false }
+        )
+    }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -81,7 +124,8 @@ fun HomeScreen(
             items(finished) { entry ->
                 FinishedBookCard(
                     entry = entry,
-                    onClick = { onNavigateToDetail(entry.id) }
+                    onClick = { onNavigateToDetail(entry.id) },
+                    onShare = { shareFinishedBook(entry) }
                 )
             }
         }
@@ -174,7 +218,8 @@ fun WantToReadItem(
 @Composable
 fun FinishedBookCard(
     entry: ReadingEntry,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onShare: () -> Unit
 ) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Card(
@@ -190,15 +235,33 @@ fun FinishedBookCard(
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = entry.title,
-            style = MaterialTheme.typography.titleMedium
-        )
-        Text(
-            text = entry.author,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = entry.title,
+                    style = MaterialTheme.typography.titleMedium
+                )
+                Text(
+                    text = entry.author,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            TextButton(onClick = onShare) {
+                Icon(
+                    Icons.Default.Share,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = SageGreen
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Share", color = SageGreen)
+            }
+        }
     }
 }
 
