@@ -3,6 +3,7 @@ package com.readr.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
@@ -10,8 +11,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -50,8 +53,20 @@ fun MainScreen() {
         currentDestination?.hierarchy?.any { it.route == screen.route } == true
     }.coerceAtLeast(0)
 
-    Scaffold(
-        bottomBar = {
+    Scaffold { innerPadding ->
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Surface(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(bottom = 88.dp),
+                color = MaterialTheme.colorScheme.background
+            ) {
+                NavGraph(navController = navController)
+            }
+
             ReadrBottomNavBar(
                 items = Screen.items,
                 selectedIndex = selectedIndex,
@@ -64,17 +79,12 @@ fun MainScreen() {
                         launchSingleTop = true
                         restoreState = true
                     }
-                }
+                },
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 24.dp)
             )
-        }
-    ) { innerPadding ->
-        Surface(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            color = MaterialTheme.colorScheme.background
-        ) {
-            NavGraph(navController = navController)
         }
     }
 }

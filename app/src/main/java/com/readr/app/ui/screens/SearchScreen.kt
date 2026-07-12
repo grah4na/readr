@@ -156,7 +156,22 @@ fun FlowRow(
         var y = 0
         var x = 0
         var maxY = 0
-        layout(constraints.maxWidth, constraints.maxHeight) {
+        var totalHeight = 0
+        for (placeable in placeables) {
+            if (x + placeable.width > constraints.maxWidth) {
+                x = 0
+                totalHeight += maxY + crossAxisSpacing.roundToPx()
+                y = totalHeight
+                maxY = 0
+            }
+            x += placeable.width + mainAxisSpacing.roundToPx()
+            maxY = maxOf(maxY, placeable.height)
+        }
+        totalHeight += maxY
+        layout(constraints.maxWidth, totalHeight) {
+            y = 0
+            x = 0
+            maxY = 0
             placeables.forEach { placeable ->
                 if (x + placeable.width > constraints.maxWidth) {
                     x = 0
