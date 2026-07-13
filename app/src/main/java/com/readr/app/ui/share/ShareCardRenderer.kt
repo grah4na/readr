@@ -21,7 +21,8 @@ data class CardData(
     val coverBitmap: Bitmap? = null,
     val finishDate: String? = null,
     val totalPages: Int? = null,
-    val whatILearnedSnippet: String? = null
+    val whatILearnedSnippet: String? = null,
+    val quoteSnippet: String? = null
 )
 
 object ShareCardRenderer {
@@ -39,5 +40,9 @@ object ShareCardRenderer {
         }
 
         return bitmap
+    }
+
+    fun renderFinishedCard(data: CardData): Bitmap {
+        return renderCard(CardType.FINISHED, data)
     }
 }
