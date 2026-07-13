@@ -65,7 +65,8 @@ fun HomeScreen(
                     bookAuthor = entry.author,
                     coverBitmap = coverBitmap,
                     finishDate = if (entry.dateFinished > 0) dateFormat.format(Date(entry.dateFinished)) else null,
-                    totalPages = if (entry.pages > 0) entry.pages else null
+                    totalPages = if (entry.pages > 0) entry.pages else null,
+                    rating = if (entry.rating > 0) entry.rating else null
                 ))
             }
             shareBitmap = bitmap
