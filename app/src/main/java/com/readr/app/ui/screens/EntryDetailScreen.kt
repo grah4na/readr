@@ -57,6 +57,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
@@ -77,6 +78,7 @@ import com.readr.app.ui.components.QuoteCard
 import com.readr.app.ui.components.ReviewCard
 import com.readr.app.ui.share.CardData
 import com.readr.app.ui.share.CardType
+import com.readr.app.ui.share.CoverBitmapLoader
 import com.readr.app.ui.share.ShareBottomSheet
 import com.readr.app.ui.share.ShareCardRenderer
 import com.readr.app.ui.theme.DarkGreen
@@ -115,11 +117,32 @@ fun EntryDetailScreen(
     var showShareSheet by remember { mutableStateOf(false) }
     var shareBitmap by remember { mutableStateOf<Bitmap?>(null) }
     val shareCoroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     val shareCard: (CardType, CardData) -> Unit = { cardType, data ->
         shareCoroutineScope.launch {
             val bitmap = withContext(Dispatchers.Default) {
                 ShareCardRenderer.renderCard(cardType, data)
+            }
+            shareBitmap = bitmap
+            showShareSheet = true
+        }
+    }
+
+    val shareFinishedReview: (ReviewEntity) -> Unit = { reviewData ->
+        shareCoroutineScope.launch {
+            val coverBitmap = entry?.let { CoverBitmapLoader.load(context, it.coverUrl) }
+            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            val bitmap = withContext(Dispatchers.Default) {
+                ShareCardRenderer.renderFinishedCard(CardData(
+                    bookTitle = entry?.title ?: "",
+                    bookAuthor = entry?.author ?: "",
+                    coverBitmap = coverBitmap,
+                    finishDate = entry?.let { if (it.dateFinished > 0) dateFormat.format(Date(it.dateFinished)) else null },
+                    totalPages = entry?.let { if (it.pages > 0) it.pages else null },
+                    rating = reviewData.rating,
+                    whatILearnedSnippet = reviewData.whatILearned
+                ))
             }
             shareBitmap = bitmap
             showShareSheet = true
@@ -413,20 +436,23 @@ fun EntryDetailScreen(
                                     ))
                                 }
                             )
-                            1 -> ReviewsTab(
-                                review = review,
-                                currentProgress = e.progress,
-                                onAddClick = { showAddReviewSheet = true },
-                                onShareReview = {
-                                    shareCard(CardType.RATING, CardData(
-                                        rating = review?.rating,
-                                        bookTitle = e.title,
-                                        bookAuthor = e.author,
-                                        coverBitmap = null,
-                                        whatILearnedSnippet = review?.whatILearned
-                                    ))
-                                }
-                            )
+            1 -> ReviewsTab(
+                review = review,
+                currentProgress = e.progress,
+                onAddClick = { showAddReviewSheet = true },
+                onShareReview = {
+                    shareCard(CardType.RATING, CardData(
+                        rating = review?.rating,
+                        bookTitle = e.title,
+                        bookAuthor = e.author,
+                        coverBitmap = null,
+                        whatILearnedSnippet = review?.whatILearned
+                    ))
+                },
+                onShareFinished = {
+                    review?.let { shareFinishedReview(it) }
+                }
+            )
                             2 -> NotesTab(
                                 notes = notes,
                                 onAddClick = { showAddNoteSheet = true },
@@ -498,7 +524,8 @@ private fun ReviewsTab(
     review: ReviewEntity?,
     currentProgress: Float,
     onAddClick: () -> Unit,
-    onShareReview: () -> Unit
+    onShareReview: () -> Unit,
+    onShareFinished: () -> Unit = {}
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
@@ -541,6 +568,19 @@ private fun ReviewsTab(
                 Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
                 Text("Share Rating")
+            }
+            Spacer(modifier = Modifier.height(4.dp))
+            OutlinedButton(
+                onClick = onShareFinished,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = DarkGreen
+                ),
+                border = BorderStroke(1.dp, DarkGreen),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
+                Spacer(modifier = Modifier.width(4.dp))
+                Text("Share to Stories")
             }
         }
     }
