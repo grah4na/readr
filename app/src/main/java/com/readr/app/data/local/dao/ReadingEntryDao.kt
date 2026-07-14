@@ -30,6 +30,24 @@ interface ReadingEntryDao {
     @Query("SELECT * FROM reading_entries WHERE progress = 0 ORDER BY dateAdded DESC")
     fun getWantToRead(): Flow<List<ReadingEntry>>
 
+    @Query("SELECT COALESCE(SUM(pages), 0) FROM reading_entries WHERE progress = 1")
+    fun getTotalPagesRead(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM reading_entries WHERE progress = 1")
+    fun getFinishedCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM reading_entries WHERE progress > 0 AND progress < 1")
+    fun getCurrentlyReadingCount(): Flow<Int>
+
+    @Query("SELECT COUNT(*) FROM reading_entries WHERE progress = 0")
+    fun getWantToReadCount(): Flow<Int>
+
+    @Query("SELECT * FROM reading_entries WHERE progress = 1 ORDER BY pages DESC LIMIT 1")
+    suspend fun getLongestBookRead(): ReadingEntry?
+
+    @Query("SELECT * FROM reading_entries WHERE progress = 1 ORDER BY pages DESC LIMIT 1")
+    fun getLongestBookReadFlow(): Flow<ReadingEntry?>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEntry(entry: ReadingEntry): Long
 

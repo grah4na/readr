@@ -16,10 +16,12 @@ import com.readr.app.data.local.dao.ReadingEntryDao
 import com.readr.app.data.local.dao.ReadingSessionDao
 import com.readr.app.data.local.dao.ReviewDao
 import com.readr.app.data.local.dao.TriggerWarningDao
+import com.readr.app.data.local.dao.UserProfileDao
 import com.readr.app.data.local.entity.CommunityNoteEntity
 import com.readr.app.data.local.entity.NoteEntity
 import com.readr.app.data.local.entity.QuoteEntity
 import com.readr.app.data.local.entity.ReviewEntity
+import com.readr.app.data.local.entity.UserProfileEntity
 import com.readr.app.data.model.LearningNote
 import com.readr.app.data.model.Quote
 import com.readr.app.data.model.ReadingEntry
@@ -38,9 +40,10 @@ import com.readr.app.data.model.TriggerWarning
         QuoteEntity::class,
         ReviewEntity::class,
         NoteEntity::class,
-        CommunityNoteEntity::class
+        CommunityNoteEntity::class,
+        UserProfileEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -56,6 +59,7 @@ abstract class ReadrDatabase : RoomDatabase() {
     abstract fun newReviewDao(): NewReviewDao
     abstract fun newNoteDao(): NewNoteDao
     abstract fun communityNoteDao(): CommunityNoteDao
+    abstract fun userProfileDao(): UserProfileDao
 
     companion object {
         @Volatile
