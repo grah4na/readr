@@ -11,10 +11,12 @@ import com.readr.app.data.local.dao.ReadingEntryDao
 import com.readr.app.data.local.dao.ReadingSessionDao
 import com.readr.app.data.local.dao.ReviewDao
 import com.readr.app.data.local.dao.TriggerWarningDao
+import com.readr.app.data.local.dao.UserProfileDao
 import com.readr.app.data.local.entity.CommunityNoteEntity
 import com.readr.app.data.local.entity.NoteEntity
 import com.readr.app.data.local.entity.QuoteEntity
 import com.readr.app.data.local.entity.ReviewEntity
+import com.readr.app.data.local.entity.UserProfileEntity
 import com.readr.app.data.model.EntryType
 import com.readr.app.data.model.LearningNote
 import com.readr.app.data.model.Quote
@@ -45,6 +47,7 @@ class ReadrRepository(
     private val newReviewDao: NewReviewDao = database.newReviewDao()
     private val newNoteDao: NewNoteDao = database.newNoteDao()
     private val communityNoteDao: CommunityNoteDao = database.communityNoteDao()
+    private val userProfileDao: UserProfileDao = database.userProfileDao()
 
     private val openLibraryApi: OpenLibraryApi = NetworkModule.openLibraryApi
     private val googleBooksApi: GoogleBooksApi = NetworkModule.googleBooksApi
@@ -259,4 +262,25 @@ class ReadrRepository(
 
     suspend fun getCommunityNotes(workId: String): List<CommunityNoteEntity> =
         communityNoteDao.getByWorkId(workId)
+
+    fun getUserProfile(): Flow<UserProfileEntity?> = userProfileDao.getProfile()
+
+    suspend fun insertUserProfile(profile: UserProfileEntity) = userProfileDao.insert(profile)
+
+    suspend fun updateDisplayName(name: String) = userProfileDao.updateDisplayName(name)
+
+    suspend fun updateBio(bio: String) = userProfileDao.updateBio(bio)
+
+    suspend fun updatePronouns(pronouns: String) = userProfileDao.updatePronouns(pronouns)
+
+    suspend fun updateProfilePhotoUri(uri: String) = userProfileDao.updateProfilePhotoUri(uri)
+
+    fun getTotalPagesRead(): Flow<Int> = entryDao.getTotalPagesRead()
+    fun getFinishedCount(): Flow<Int> = entryDao.getFinishedCount()
+    fun getCurrentlyReadingCount(): Flow<Int> = entryDao.getCurrentlyReadingCount()
+    fun getWantToReadCount(): Flow<Int> = entryDao.getWantToReadCount()
+    suspend fun getLongestBookRead(): ReadingEntry? = entryDao.getLongestBookRead()
+    fun getLongestBookReadFlow(): Flow<ReadingEntry?> = entryDao.getLongestBookReadFlow()
+    fun getAverageRating(): Flow<Float> = newReviewDao.getAverageRating()
+    fun getAllReviews(): Flow<List<ReviewEntity>> = newReviewDao.getAllReviews()
 }
