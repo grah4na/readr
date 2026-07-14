@@ -6,7 +6,13 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.readr.app.ui.screens.*
+import com.readr.app.ui.screens.AddScreen
+import com.readr.app.ui.screens.EntryDetailScreen
+import com.readr.app.ui.screens.HomeScreen
+import com.readr.app.ui.screens.ManualEntryScreen
+import com.readr.app.ui.screens.NotesScreen
+import com.readr.app.ui.screens.SearchScreen
+import com.readr.app.ui.screens.profile.ProfileScreen
 
 @Composable
 fun NavGraph(navController: NavHostController) {
