@@ -1,11 +1,14 @@
 package com.readr.app.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
@@ -15,21 +18,50 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.readr.app.data.local.entity.NoteEntity
+import com.readr.app.data.model.ReadingEntry
+import com.readr.app.ui.components.AddNoteSheet
 import com.readr.app.ui.theme.DarkGreen
-import com.readr.app.ui.theme.PrimaryYellow
 import com.readr.app.ui.theme.SoftBeige
+import com.readr.app.viewmodel.NotesViewModel
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NotesScreen(
-    onNavigateToDetail: (Long) -> Unit = {}
+    onNavigateToDetail: (Long) -> Unit = {},
+    viewModel: NotesViewModel = viewModel()
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("All Notes", "Highlights", "Favorites")
 
+    val notes by viewModel.notes.collectAsState()
+    val entries by viewModel.entries.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    var showEntryPicker by remember { mutableStateOf(false) }
+    var showAddNoteSheet by remember { mutableStateOf(false) }
+    var noteTargetEntry by remember { mutableStateOf<ReadingEntry?>(null) }
+
+    val filteredNotes = when (selectedTab) {
+        1 -> notes.filter { it.type == "HIGHLIGHT" }
+        2 -> notes.filter { it.tags?.contains("favorite", ignoreCase = true) == true }
+        else -> notes
+    }
+
+    val entryMap = remember(entries) {
+        entries.associateBy { it.id.toString() }
+    }
+
     Box(modifier = Modifier.fillMaxSize()) {
         LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-            contentPadding = PaddingValues(bottom = 100.dp, top = 24.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            contentPadding = PaddingValues(top = 24.dp, bottom = 96.dp),
             verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
             item {
@@ -64,17 +96,49 @@ fun NotesScreen(
                 }
             }
 
-            items(3) { index ->
-                NoteCardPlaceholder(index)
+            if (isLoading) {
+                item {
+                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator(modifier = Modifier.padding(32.dp))
+                    }
+                }
+            } else if (filteredNotes.isEmpty()) {
+                item {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "No notes yet. Tap \"New Note\" to add one.",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = Color.Gray
+                        )
+                    }
+                }
+            } else {
+                items(filteredNotes, key = { it.id }) { note ->
+                    val entry = entryMap[note.readingLogId]
+                    NoteCardWithEntry(
+                        note = note,
+                        entry = entry,
+                        onClick = {
+                            entry?.let { onNavigateToDetail(it.id) }
+                        }
+                    )
+                }
             }
         }
 
-        // Custom FAB
         Button(
-            onClick = { /* New Note */ },
+            onClick = {
+                if (entries.isNotEmpty()) {
+                    showEntryPicker = true
+                }
+            },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 100.dp)
+                .fillMaxWidth()
+                .padding(horizontal = 24.dp, vertical = 8.dp)
                 .height(48.dp),
             colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
             shape = RoundedCornerShape(24.dp),
@@ -85,48 +149,90 @@ fun NotesScreen(
             Text("New Note", fontSize = 14.sp)
         }
     }
+
+    if (showEntryPicker && entries.isNotEmpty()) {
+        AlertDialog(
+            onDismissRequest = { showEntryPicker = false },
+            title = { Text("Choose a book to add a note to") },
+            text = {
+                Column(
+                    modifier = Modifier.verticalScroll(rememberScrollState())
+                ) {
+                    entries.forEach { entry ->
+                        TextButton(
+                            onClick = {
+                                noteTargetEntry = entry
+                                showEntryPicker = false
+                                showAddNoteSheet = true
+                            },
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = entry.title,
+                                fontWeight = FontWeight.Medium,
+                                modifier = Modifier.padding(vertical = 6.dp)
+                            )
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { showEntryPicker = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    if (showAddNoteSheet && noteTargetEntry != null) {
+        AddNoteSheet(
+            onDismiss = {
+                showAddNoteSheet = false
+                noteTargetEntry = null
+            },
+            onSave = { text, pageNumber, tags, type ->
+                noteTargetEntry?.let { entry ->
+                    viewModel.addNote(entry.id.toString(), text, pageNumber, tags, type)
+                }
+                showAddNoteSheet = false
+                noteTargetEntry = null
+            }
+        )
+    }
 }
 
 @Composable
-fun NoteCardPlaceholder(index: Int) {
-    val quotes = listOf(
-        "Books are a uniquely portable magic.",
-        "We accept the love we think we deserve.",
-        "It does not do to dwell on dreams and forget to live."
-    )
-    val authors = listOf("Stephen King", "Stephen Chbosky", "J.K. Rowling")
-    val books = listOf("The Fault in Our Stars", "The Perks of Being a Wallflower", "Harry Potter and the Sorcerer's Stone")
-    val dates = listOf("May 12, 2023", "May 10, 2023", "May 8, 2023")
+private fun NoteCardWithEntry(
+    note: NoteEntity,
+    entry: ReadingEntry?,
+    onClick: () -> Unit
+) {
+    val dateFormat = remember { SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()) }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = SoftBeige),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("“", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = DarkGreen)
-                Icon(Icons.Default.Star, contentDescription = null, tint = PrimaryYellow, modifier = Modifier.size(18.dp))
-            }
             Text(
-                text = quotes[index % quotes.size],
+                text = note.text,
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(
-                text = "— ${authors[index % authors.size]}",
-                style = MaterialTheme.typography.bodySmall,
-                color = Color.Gray
-            )
-            Text(
-                text = "On: ${books[index % books.size]}",
-                style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray
-            )
             Spacer(modifier = Modifier.height(8.dp))
+            if (entry != null) {
+                Text(
+                    text = "Book: ${entry.title}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = Color.Gray
+                )
+            }
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = dates[index % dates.size],
+                text = dateFormat.format(Date(note.createdAt)),
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.LightGray
             )
