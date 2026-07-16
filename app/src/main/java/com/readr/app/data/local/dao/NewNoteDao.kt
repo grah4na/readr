@@ -13,6 +13,12 @@ interface NewNoteDao {
     @Query("SELECT * FROM notes WHERE readingLogId = :logId ORDER BY createdAt DESC")
     suspend fun getByLogId(logId: String): List<NoteEntity>
 
+    @Query("SELECT * FROM notes ORDER BY createdAt DESC")
+    suspend fun getAll(): List<NoteEntity>
+
+    @Query("SELECT * FROM notes WHERE text LIKE '%' || :query || '%' OR tags LIKE '%' || :query || '%' ORDER BY createdAt DESC")
+    suspend fun searchAll(query: String): List<NoteEntity>
+
     @Query("SELECT * FROM notes WHERE readingLogId = :logId AND text LIKE '%' || :query || '%'")
     suspend fun searchInLog(logId: String, query: String): List<NoteEntity>
 }
