@@ -20,7 +20,9 @@ import com.readr.app.ui.theme.PrimaryYellow
 import com.readr.app.ui.theme.SoftBeige
 
 @Composable
-fun NotesScreen() {
+fun NotesScreen(
+    onNavigateToDetail: (Long) -> Unit = {}
+) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("All Notes", "Highlights", "Favorites")
 

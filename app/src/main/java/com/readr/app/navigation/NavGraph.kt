@@ -42,7 +42,11 @@ fun NavGraph(navController: NavHostController) {
             )
         }
         composable(Screen.Notes.route) {
-            NotesScreen()
+            NotesScreen(
+                onNavigateToDetail = { entryId ->
+                    navController.navigate(Screen.EntryDetail.createRoute(entryId))
+                }
+            )
         }
         composable(Screen.Profile.route) {
             ProfileScreen()
