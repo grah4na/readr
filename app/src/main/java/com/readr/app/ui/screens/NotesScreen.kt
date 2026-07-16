@@ -131,9 +131,7 @@ fun NotesScreen(
 
         Button(
             onClick = {
-                if (entries.isNotEmpty()) {
-                    showEntryPicker = true
-                }
+                showEntryPicker = true
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
@@ -150,28 +148,36 @@ fun NotesScreen(
         }
     }
 
-    if (showEntryPicker && entries.isNotEmpty()) {
+    if (showEntryPicker) {
         AlertDialog(
             onDismissRequest = { showEntryPicker = false },
             title = { Text("Choose a book to add a note to") },
             text = {
-                Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
-                ) {
-                    entries.forEach { entry ->
-                        TextButton(
-                            onClick = {
-                                noteTargetEntry = entry
-                                showEntryPicker = false
-                                showAddNoteSheet = true
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Text(
-                                text = entry.title,
-                                fontWeight = FontWeight.Medium,
-                                modifier = Modifier.padding(vertical = 6.dp)
-                            )
+                if (entries.isEmpty()) {
+                    Text(
+                        "No books found. Add a book first.",
+                        modifier = Modifier.padding(vertical = 16.dp),
+                        color = Color.Gray
+                    )
+                } else {
+                    Column(
+                        modifier = Modifier.verticalScroll(rememberScrollState())
+                    ) {
+                        entries.forEach { entry ->
+                            TextButton(
+                                onClick = {
+                                    noteTargetEntry = entry
+                                    showEntryPicker = false
+                                    showAddNoteSheet = true
+                                },
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = entry.title,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(vertical = 6.dp)
+                                )
+                            }
                         }
                     }
                 }
