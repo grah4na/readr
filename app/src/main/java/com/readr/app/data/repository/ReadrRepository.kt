@@ -237,6 +237,12 @@ class ReadrRepository(
     suspend fun getNotes(readingLogId: String): List<NoteEntity> =
         newNoteDao.getByLogId(readingLogId)
 
+    suspend fun getAllNewNotes(): List<NoteEntity> =
+        newNoteDao.getAll()
+
+    suspend fun searchAllNewNotes(query: String): List<NoteEntity> =
+        newNoteDao.searchAll(query)
+
     suspend fun searchNotes(readingLogId: String, query: String): List<NoteEntity> =
         newNoteDao.searchInLog(readingLogId, query)
 
