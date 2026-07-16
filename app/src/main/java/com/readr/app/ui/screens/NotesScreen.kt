@@ -129,22 +129,24 @@ fun NotesScreen(
             }
         }
 
-        Button(
-            onClick = {
-                showEntryPicker = true
-            },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp)
-                .height(48.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
-            shape = RoundedCornerShape(24.dp),
-            contentPadding = PaddingValues(horizontal = 24.dp)
+        Column(
+            modifier = Modifier.align(Alignment.BottomCenter)
         ) {
-            Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
-            Spacer(modifier = Modifier.width(8.dp))
-            Text("New Note", fontSize = 14.sp)
+            Button(
+                onClick = { showEntryPicker = true },
+                modifier = Modifier
+                    .widthIn(min = 200.dp)
+                    .height(48.dp)
+                    .align(Alignment.CenterHorizontally),
+                colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                shape = RoundedCornerShape(24.dp),
+                contentPadding = PaddingValues(horizontal = 24.dp)
+            ) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("New Note", fontSize = 14.sp)
+            }
+            Spacer(modifier = Modifier.height(24.dp))
         }
     }
 
