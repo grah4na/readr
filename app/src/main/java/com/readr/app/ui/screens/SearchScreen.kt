@@ -130,9 +130,19 @@ fun SearchScreen(
                 items(results) { result ->
                     SearchResultItem(
                         result = result,
-                        onAdd = {
+                        onWantToRead = {
                             scope.launch {
-                                viewModel.addToLibrary(result)
+                                viewModel.addToWantToRead(result)
+                            }
+                        },
+                        onStartReading = {
+                            scope.launch {
+                                viewModel.addToCurrentlyReading(result)
+                            }
+                        },
+                        onMarkFinished = {
+                            scope.launch {
+                                viewModel.addToFinished(result)
                             }
                         }
                     )
