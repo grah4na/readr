@@ -63,7 +63,7 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
         _query.value = query
     }
 
-    suspend fun addToLibrary(result: SearchResult): Long {
+    suspend fun addToWantToRead(result: SearchResult): Long {
         val enriched = enrichWithDescription(result)
         val entry = ReadingEntry(
             type = EntryType.BOOK,
@@ -74,6 +74,42 @@ class SearchViewModel(application: Application) : AndroidViewModel(application) 
             pages = enriched.pages,
             description = enriched.description,
             previewUrl = enriched.previewUrl
+        )
+        return repo.insertEntry(entry)
+    }
+
+    suspend fun addToCurrentlyReading(result: SearchResult): Long {
+        val enriched = enrichWithDescription(result)
+        val entry = ReadingEntry(
+            type = EntryType.BOOK,
+            title = enriched.title,
+            author = enriched.author,
+            coverUrl = enriched.coverUrl,
+            isbn = enriched.isbn,
+            pages = enriched.pages,
+            description = enriched.description,
+            previewUrl = enriched.previewUrl,
+            progress = 0.01f,
+            dateStarted = System.currentTimeMillis()
+        )
+        return repo.insertEntry(entry)
+    }
+
+    suspend fun addToFinished(result: SearchResult): Long {
+        val enriched = enrichWithDescription(result)
+        val now = System.currentTimeMillis()
+        val entry = ReadingEntry(
+            type = EntryType.BOOK,
+            title = enriched.title,
+            author = enriched.author,
+            coverUrl = enriched.coverUrl,
+            isbn = enriched.isbn,
+            pages = enriched.pages,
+            description = enriched.description,
+            previewUrl = enriched.previewUrl,
+            progress = 1f,
+            dateStarted = now,
+            dateFinished = now
         )
         return repo.insertEntry(entry)
     }
