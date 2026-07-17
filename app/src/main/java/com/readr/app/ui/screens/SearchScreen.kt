@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -255,44 +256,91 @@ fun RecommendedBookItemPlaceholder(index: Int) {
 @Composable
 fun SearchResultItem(
     result: SearchResult,
-    onAdd: () -> Unit
+    onWantToRead: () -> Unit,
+    onStartReading: () -> Unit,
+    onMarkFinished: () -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+        colors = CardDefaults.cardColors(containerColor = OffWhite),
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Row(
-            modifier = Modifier.padding(vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             AsyncImage(
-                model = result.coverUrl,
+                model = result.coverUrl.ifBlank { null },
                 contentDescription = null,
                 modifier = Modifier
-                    .size(60.dp, 90.dp)
-                    .clip(RoundedCornerShape(8.dp)),
+                    .width(54.dp)
+                    .height(80.dp)
+                    .clip(RoundedCornerShape(4.dp)),
                 contentScale = ContentScale.Crop
             )
-            Spacer(modifier = Modifier.width(16.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = result.title,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = DarkCharcoal,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = result.author,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MediumGrey,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = "${result.pages} pages",
-                    style = MaterialTheme.typography.labelSmall
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MediumGrey
                 )
-            }
-            IconButton(onClick = onAdd) {
-                Icon(Icons.Default.Add, contentDescription = "Add", tint = PrimaryYellow)
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    FilledTonalButton(
+                        onClick = onWantToRead,
+                        modifier = Modifier.height(28.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = PrimaryYellow.copy(alpha = 0.15f),
+                            contentColor = DarkCharcoal
+                        )
+                    ) {
+                        Icon(Icons.Default.BookmarkBorder, contentDescription = null, modifier = Modifier.size(12.dp))
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text("Want to Read", fontSize = 9.sp, maxLines = 1)
+                    }
+                    FilledTonalButton(
+                        onClick = onStartReading,
+                        modifier = Modifier.height(28.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = SageGreen.copy(alpha = 0.15f),
+                            contentColor = DarkGreen
+                        )
+                    ) {
+                        Text("Reading", fontSize = 9.sp, maxLines = 1)
+                    }
+                    FilledTonalButton(
+                        onClick = onMarkFinished,
+                        modifier = Modifier.height(28.dp),
+                        contentPadding = PaddingValues(horizontal = 8.dp),
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = DarkGreen.copy(alpha = 0.15f),
+                            contentColor = DarkGreen
+                        )
+                    ) {
+                        Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(12.dp))
+                        Spacer(modifier = Modifier.width(2.dp))
+                        Text("Finished", fontSize = 9.sp, maxLines = 1)
+                    }
+                }
             }
         }
     }
