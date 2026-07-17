@@ -23,7 +23,12 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.readr.app.data.model.SearchResult
+import com.readr.app.ui.theme.DarkCharcoal
+import com.readr.app.ui.theme.DarkGreen
+import com.readr.app.ui.theme.MediumGrey
+import com.readr.app.ui.theme.OffWhite
 import com.readr.app.ui.theme.PrimaryYellow
+import com.readr.app.ui.theme.SageGreen
 import com.readr.app.viewmodel.SearchViewModel
 import kotlinx.coroutines.launch
 
@@ -64,8 +69,10 @@ fun SearchScreen(
                 placeholder = { Text("Search by title, author or genre", style = MaterialTheme.typography.bodyMedium) },
                 leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
                 trailingIcon = {
-                    IconButton(onClick = { /* Filter */ }) {
-                        Icon(Icons.Default.Tune, contentDescription = "Filter")
+                    if (query.isNotEmpty()) {
+                        IconButton(onClick = { viewModel.updateQuery("") }) {
+                            Icon(Icons.Default.Clear, contentDescription = "Clear")
+                        }
                     }
                 },
                 shape = RoundedCornerShape(12.dp),
