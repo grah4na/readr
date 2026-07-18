@@ -48,6 +48,9 @@ interface ReadingEntryDao {
     @Query("SELECT * FROM reading_entries WHERE progress = 1 ORDER BY pages DESC LIMIT 1")
     fun getLongestBookReadFlow(): Flow<ReadingEntry?>
 
+    @Query("SELECT * FROM reading_entries WHERE progress = 1 AND rating > 0 ORDER BY rating DESC, dateFinished DESC LIMIT 4")
+    fun getTopRatedBooks(): Flow<List<ReadingEntry>>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertEntry(entry: ReadingEntry): Long
 
