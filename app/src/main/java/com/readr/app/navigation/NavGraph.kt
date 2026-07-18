@@ -49,7 +49,16 @@ fun NavGraph(navController: NavHostController) {
             )
         }
         composable(Screen.Profile.route) {
-            ProfileScreen()
+            ProfileScreen(
+                onNavigateToSettings = {
+                    navController.navigate(Screen.Settings.route)
+                }
+            )
+        }
+        composable(Screen.Settings.route) {
+            com.readr.app.ui.screens.settings.SettingsScreen(
+                onNavigateBack = { navController.popBackStack() }
+            )
         }
         composable(Screen.ManualEntry.route) {
             ManualEntryScreen(

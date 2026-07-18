@@ -18,6 +18,7 @@ sealed class Screen(val route: String, val title: String, val icon: ImageVector)
     object EntryDetail : Screen("entry_detail/{entryId}", "", Icons.Default.Home) {
         fun createRoute(entryId: Long) = "entry_detail/$entryId"
     }
+    object Settings : Screen("settings", "", Icons.Default.Settings)
 
     companion object {
         val items = listOf(Home, Search, Add, Notes, Profile)
