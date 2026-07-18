@@ -70,6 +70,9 @@ class ProfileViewModel(application: Application) : AndroidViewModel(application)
     val wantToReadBooks: StateFlow<List<ReadingEntry>> = repo.getWantToRead()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val currentlyReading: StateFlow<List<ReadingEntry>> = repo.getCurrentlyReading()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
     private val _isEditing = MutableStateFlow(false)
     val isEditing: StateFlow<Boolean> = _isEditing.asStateFlow()
 
