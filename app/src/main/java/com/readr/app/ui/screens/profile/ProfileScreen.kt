@@ -12,6 +12,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.*
@@ -32,18 +34,23 @@ import com.readr.app.ui.screens.profile.components.BookListItem
 import com.readr.app.ui.screens.profile.components.EditProfileBottomSheet
 import com.readr.app.ui.screens.profile.components.StatsRow
 import com.readr.app.ui.theme.*
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 private val tabs = listOf("Profile", "Diary", "Want to Read")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    viewModel: ProfileViewModel = viewModel()
+    viewModel: ProfileViewModel = viewModel(),
+    onNavigateToSettings: () -> Unit = {}
 ) {
     val userProfile by viewModel.userProfile.collectAsState()
     val stats by viewModel.stats.collectAsState()
     val finishedBooks by viewModel.finishedBooks.collectAsState()
     val wantToReadBooks by viewModel.wantToReadBooks.collectAsState()
+    val currentlyReading by viewModel.currentlyReading.collectAsState()
     val isEditing by viewModel.isEditing.collectAsState()
     var selectedTabIndex by remember { mutableIntStateOf(0) }
 
@@ -92,11 +99,13 @@ fun ProfileScreen(
                 0 -> ProfileTab(
                     userProfile = userProfile,
                     stats = stats,
+                    currentlyReading = currentlyReading,
                     isEditing = isEditing,
                     onEditProfile = { viewModel.showEditProfile() },
                     onDismissEdit = { viewModel.hideEditProfile() },
                     onSaveProfile = { name, bio, pronouns -> viewModel.updateProfile(name, bio, pronouns) },
-                    onPickPhoto = { photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
+                    onPickPhoto = { photoPickerLauncher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                    onNavigateToSettings = onNavigateToSettings
                 )
                 1 -> BooksListTab(
                     books = finishedBooks,
@@ -119,11 +128,13 @@ fun ProfileScreen(
 private fun ProfileTab(
     userProfile: UserProfileEntity?,
     stats: com.readr.app.data.model.ProfileStats,
+    currentlyReading: List<ReadingEntry>,
     isEditing: Boolean,
     onEditProfile: () -> Unit,
     onDismissEdit: () -> Unit,
     onSaveProfile: (String, String, String) -> Unit,
-    onPickPhoto: () -> Unit
+    onPickPhoto: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -133,8 +144,18 @@ private fun ProfileTab(
             ProfileHeader(
                 userProfile = userProfile,
                 onPickPhoto = onPickPhoto,
-                onEditProfile = onEditProfile
+                onEditProfile = onEditProfile,
+                onNavigateToSettings = onNavigateToSettings
             )
+        }
+
+        if (currentlyReading.isNotEmpty()) {
+            item {
+                CurrentlyReadingSection(
+                    books = currentlyReading,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+                )
+            }
         }
 
         item {
@@ -160,7 +181,8 @@ private fun ProfileTab(
 private fun ProfileHeader(
     userProfile: UserProfileEntity?,
     onPickPhoto: () -> Unit,
-    onEditProfile: () -> Unit
+    onEditProfile: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -170,6 +192,21 @@ private fun ProfileHeader(
             .padding(horizontal = 16.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        Box(
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Box(
+                modifier = Modifier.align(Alignment.CenterEnd)
+            ) {
+                IconButton(onClick = onNavigateToSettings) {
+                    Icon(
+                        imageVector = Icons.Default.Settings,
+                        contentDescription = "Settings",
+                        tint = DarkGreen
+                    )
+                }
+            }
+        }
         Box(
             modifier = Modifier
                 .size(100.dp)
@@ -305,6 +342,70 @@ private fun BooksListTab(
                         { onStartReading(entry) }
                     } else null
                 )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CurrentlyReadingSection(
+    books: List<ReadingEntry>,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(
+            text = "Currently Reading",
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = DarkCharcoal
+        )
+        books.forEach { entry ->
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = OffWhite),
+                shape = RoundedCornerShape(8.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    AsyncImage(
+                        model = if (entry.coverUrl.isNotBlank()) entry.coverUrl else null,
+                        contentDescription = entry.title,
+                        modifier = Modifier
+                            .width(50.dp)
+                            .height(75.dp)
+                            .clip(RoundedCornerShape(4.dp)),
+                        contentScale = ContentScale.Crop
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = entry.title,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = DarkCharcoal,
+                            maxLines = 2,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        Text(
+                            text = entry.author,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MediumGrey,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                        if (entry.dateStarted > 0) {
+                            val dateFormat = SimpleDateFormat("MMM d, yyyy", Locale.getDefault())
+                            Text(
+                                text = "Started: ${dateFormat.format(Date(entry.dateStarted))}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = SageGreen
+                            )
+                        }
+                    }
+                }
             }
         }
     }
