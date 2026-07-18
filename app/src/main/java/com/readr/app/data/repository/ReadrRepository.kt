@@ -289,4 +289,5 @@ class ReadrRepository(
     fun getLongestBookReadFlow(): Flow<ReadingEntry?> = entryDao.getLongestBookReadFlow()
     fun getAverageRating(): Flow<Float> = newReviewDao.getAverageRating()
     fun getAllReviews(): Flow<List<ReviewEntity>> = newReviewDao.getAllReviews()
+    fun getTopRatedBooks(): Flow<List<ReadingEntry>> = entryDao.getTopRatedBooks()
 }
