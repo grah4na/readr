@@ -20,12 +20,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.readr.app.navigation.Screen
-import com.readr.app.ui.theme.DarkCharcoal
-import com.readr.app.ui.theme.MediumGrey
-import com.readr.app.ui.theme.PrimaryYellow
+import com.readr.app.ui.theme.*
 
 @Composable
 fun ReadrBottomNavBar(
@@ -39,8 +38,8 @@ fun ReadrBottomNavBar(
             .fillMaxWidth()
             .height(72.dp),
         shape = RoundedCornerShape(36.dp),
-        colors = CardDefaults.cardColors(containerColor = DarkCharcoal),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+        colors = CardDefaults.cardColors(containerColor = White),
+        elevation = CardDefaults.cardElevation(defaultElevation = 12.dp)
     ) {
         Row(
             modifier = Modifier
@@ -52,7 +51,7 @@ fun ReadrBottomNavBar(
     ) {
         items.forEachIndexed { index, screen ->
             val isSelected = index == selectedIndex
-            val contentColor = if (isSelected) PrimaryYellow else MediumGrey
+            val contentColor = if (isSelected) NavSelected else NavUnselected
 
             Column(
                 modifier = Modifier
@@ -75,7 +74,10 @@ fun ReadrBottomNavBar(
                     Text(
                         text = screen.title,
                         color = contentColor,
-                        style = MaterialTheme.typography.labelMedium.copy(fontSize = 10.sp),
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontSize = 10.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
+                        ),
                         modifier = Modifier.padding(top = 4.dp)
                     )
                 }
