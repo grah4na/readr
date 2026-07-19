@@ -1,6 +1,6 @@
 package com.readr.app.ui.screens
 
-import android.graphics.Bitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -9,16 +9,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material.icons.filled.LocalFireDepartment
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.filled.TrendingFlat
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -26,283 +26,255 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.readr.app.data.model.ReadingEntry
-import com.readr.app.ui.share.CardData
-import com.readr.app.ui.share.CardType
-import com.readr.app.ui.share.CoverBitmapLoader
-import com.readr.app.ui.share.ShareBottomSheet
-import com.readr.app.ui.share.ShareCardRenderer
-import com.readr.app.ui.theme.PrimaryYellow
-import com.readr.app.ui.theme.SageGreen
-import com.readr.app.ui.theme.SoftBeige
+import com.readr.app.ui.theme.*
 import com.readr.app.viewmodel.HomeViewModel
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Composable
 fun HomeScreen(
     onNavigateToDetail: (Long) -> Unit = {},
     viewModel: HomeViewModel = viewModel()
 ) {
-    val context = LocalContext.current
     val wantToRead by viewModel.wantToRead.collectAsState()
-    val finished by viewModel.finished.collectAsState()
-    val allEntries by viewModel.allEntries.collectAsState()
-    var showShareSheet by remember { mutableStateOf(false) }
-    var shareBitmap by remember { mutableStateOf<Bitmap?>(null) }
-    val shareCoroutineScope = rememberCoroutineScope()
+    
+    // Placeholder data for sections not yet in database
+    val trendingBooks = wantToRead.take(5)
 
-    val shareFinishedBook: (ReadingEntry) -> Unit = { entry ->
-        shareCoroutineScope.launch {
-            val coverBitmap = CoverBitmapLoader.load(context, entry.coverUrl)
-            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
-            val bitmap = withContext(Dispatchers.Default) {
-                ShareCardRenderer.renderCard(CardType.FINISHED, CardData(
-                    bookTitle = entry.title,
-                    bookAuthor = entry.author,
-                    coverBitmap = coverBitmap,
-                    finishDate = if (entry.dateFinished > 0) dateFormat.format(Date(entry.dateFinished)) else null,
-                    totalPages = if (entry.pages > 0) entry.pages else null,
-                    rating = if (entry.rating > 0) entry.rating else null
-                ))
-            }
-            shareBitmap = bitmap
-            showShareSheet = true
-        }
-    }
-
-    if (showShareSheet && shareBitmap != null) {
-        ShareBottomSheet(
-            bitmap = shareBitmap!!,
-            onDismiss = { showShareSheet = false }
-        )
-    }
-
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 100.dp, top = 24.dp, start = 16.dp, end = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        item { HomeHeader() }
-
-        if (wantToRead.isNotEmpty()) {
+    Scaffold(
+        containerColor = AppBackground
+    ) { innerPadding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentPadding = PaddingValues(bottom = 100.dp)
+        ) {
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                HomeHeader()
+            }
+
+            item {
+                SectionHeader(title = "Trending books")
+            }
+
+            item {
+                LazyRow(
+                    contentPadding = PaddingValues(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    Text(
-                        text = "Want to Read",
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                    Icon(Icons.Default.ChevronRight, contentDescription = null)
-                }
-            }
-
-            item {
-                LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    items(wantToRead) { entry ->
-                        WantToReadItem(
-                            entry = entry,
-                            onClick = { onNavigateToDetail(entry.id) }
-                        )
+                    items(trendingBooks) { book ->
+                        TrendingBookItem(book = book, onClick = { onNavigateToDetail(book.id) })
                     }
                 }
             }
-        }
 
-        if (finished.isNotEmpty()) {
             item {
-                Text(
-                    text = "Finished",
-                    style = MaterialTheme.typography.titleLarge
+                SwapBanner()
+            }
+
+            item {
+                SectionHeader(
+                    title = "Join a book club",
+                    subtitle = "Recommended Book Clubs for You"
                 )
             }
 
-            items(finished) { entry ->
-                FinishedBookCard(
-                    entry = entry,
-                    onClick = { onNavigateToDetail(entry.id) },
-                    onShare = { shareFinishedBook(entry) }
-                )
+            item {
+                BookClubRow()
             }
-        }
-
-        item {
-            ReadingStreakCard()
         }
     }
 }
 
 @Composable
 fun HomeHeader() {
-    Column {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column {
-                Text(
-                    text = "Good morning,",
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = "Reader ☀️",
-                    style = MaterialTheme.typography.displayLarge
-                )
-            }
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("JD")
-            }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.Top
+    ) {
+        Column {
+            Text(
+                text = "Welcome back",
+                style = MaterialTheme.typography.titleLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp
+                ),
+                color = DeepBlack
+            )
+            Text(
+                text = "Discover Your Next Great Read",
+                style = MaterialTheme.typography.bodyMedium,
+                color = SubtitleGrey
+            )
         }
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            text = "Ready for a new adventure?",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+        Icon(
+            imageVector = Icons.Default.NotificationsNone,
+            contentDescription = "Notifications",
+            tint = DeepBlack,
+            modifier = Modifier.size(24.dp)
         )
+    }
+}
+
+@Composable
+fun SectionHeader(title: String, subtitle: String? = null) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            ),
+            color = DeepBlack
+        )
+        if (subtitle != null) {
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = SubtitleGrey
+            )
+        }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun WantToReadItem(
-    entry: ReadingEntry,
-    onClick: () -> Unit
-) {
+fun TrendingBookItem(book: ReadingEntry, onClick: () -> Unit) {
     Column(
-        modifier = Modifier
-            .width(100.dp)
+        modifier = Modifier.width(140.dp)
     ) {
         Card(
             onClick = onClick,
-            modifier = Modifier.size(100.dp, 150.dp),
-            shape = RoundedCornerShape(12.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+            shape = RoundedCornerShape(12.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             AsyncImage(
-                model = entry.coverUrl,
-                contentDescription = null,
+                model = book.coverUrl,
+                contentDescription = book.title,
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop
             )
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = entry.title,
-            style = MaterialTheme.typography.bodySmall,
-            fontWeight = FontWeight.Bold,
-            maxLines = 1,
+            text = book.title,
+            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+            color = DeepBlack,
+            maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
         Text(
-            text = entry.author,
-            style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            text = book.author,
+            style = MaterialTheme.typography.bodySmall,
+            color = SubtitleGrey,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FinishedBookCard(
-    entry: ReadingEntry,
-    onClick: () -> Unit,
-    onShare: () -> Unit
-) {
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Card(
-            onClick = onClick,
-            modifier = Modifier.size(100.dp, 150.dp),
-            shape = RoundedCornerShape(12.dp)
-        ) {
-            AsyncImage(
-                model = entry.coverUrl,
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-        }
-        Spacer(modifier = Modifier.height(8.dp))
+fun SwapBanner() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = BannerPurple)
+    ) {
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .padding(24.dp)
+                .fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = entry.title,
-                    style = MaterialTheme.typography.titleMedium
+                    text = "Swap your old books",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = DeepBlack
                 )
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = entry.author,
+                    text = "Trade out your physical books\nfor new ones now!",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = SubtitleGrey
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = { /* TODO */ },
+                    colors = ButtonDefaults.buttonColors(containerColor = White),
+                    shape = RoundedCornerShape(20.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "Swap now",
+                            color = DeepBlack,
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Icon(
+                            imageVector = Icons.Default.TrendingFlat,
+                            contentDescription = null,
+                            tint = DeepBlack,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    }
+                }
             }
-            TextButton(onClick = onShare) {
-                Icon(
-                    Icons.Default.Share,
-                    contentDescription = null,
-                    modifier = Modifier.size(16.dp),
-                    tint = SageGreen
+            
+            // Stacked books illustration placeholder
+            Box(
+                modifier = Modifier.size(80.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                // In a real app, this would be an illustration image
+                Box(
+                    modifier = Modifier
+                        .size(40.dp, 60.dp)
+                        .background(White, RoundedCornerShape(4.dp))
+                        .offset(x = (-10).dp, y = (-5).dp)
                 )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text("Share", color = SageGreen)
+                Box(
+                    modifier = Modifier
+                        .size(40.dp, 60.dp)
+                        .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
+                        .offset(x = 10.dp, y = 5.dp)
+                )
             }
         }
     }
 }
 
 @Composable
-fun ReadingStreakCard() {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = SoftBeige),
-        shape = RoundedCornerShape(24.dp)
+fun BookClubRow() {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Row(
-            modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
+        // Placeholder for book club avatars
+        items(6) { index ->
             Box(
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(56.dp)
                     .clip(CircleShape)
-                    .background(PrimaryYellow.copy(alpha = 0.2f)),
+                    .background(Color(0xFFE0E0E0)),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    Icons.Default.LocalFireDepartment,
-                    contentDescription = null,
-                    tint = PrimaryYellow,
-                    modifier = Modifier.size(28.dp)
-                )
-            }
-            Spacer(modifier = Modifier.width(16.dp))
-            Column {
-                Text(
-                    text = "Reading Streak",
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = "7 days in a row",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                // Placeholder avatar image or initials
+                Text(text = "C$index", color = SubtitleGrey)
             }
         }
     }

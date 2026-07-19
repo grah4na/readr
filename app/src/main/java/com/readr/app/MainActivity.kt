@@ -53,7 +53,9 @@ fun MainScreen() {
         currentDestination?.hierarchy?.any { it.route == screen.route } == true
     }.coerceAtLeast(0)
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        containerColor = MaterialTheme.colorScheme.background
+    ) { innerPadding ->
         Box(
             modifier = Modifier.fillMaxSize()
         ) {
