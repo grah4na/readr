@@ -25,19 +25,19 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = PrimaryYellow,
-    onPrimary = Black,
-    secondary = DarkGreen,
+    primary = NavSelected,
+    onPrimary = White,
+    secondary = BannerTextPurple,
     onSecondary = White,
-    tertiary = SageGreen,
+    tertiary = SubtitleGrey,
     onTertiary = White,
-    background = OffWhite,
-    onBackground = DarkCharcoal,
-    surface = SoftBeige,
-    onSurface = DarkCharcoal,
-    surfaceVariant = LightSage,
-    onSurfaceVariant = DarkCharcoal,
-    outline = MediumGrey
+    background = AppBackground,
+    onBackground = DeepBlack,
+    surface = White,
+    onSurface = DeepBlack,
+    surfaceVariant = BannerPurple,
+    onSurfaceVariant = DeepBlack,
+    outline = NavUnselected
 )
 
 @Composable
