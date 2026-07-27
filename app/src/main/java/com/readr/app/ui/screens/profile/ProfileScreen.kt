@@ -61,7 +61,7 @@ fun ProfileScreen(
     }
 
     Scaffold(
-        containerColor = OffWhite
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -70,13 +70,13 @@ fun ProfileScreen(
         ) {
             TabRow(
                 selectedTabIndex = selectedTabIndex,
-                containerColor = SoftBeige,
-                contentColor = DarkCharcoal,
+                containerColor = MaterialTheme.colorScheme.surface,
+                contentColor = MaterialTheme.colorScheme.onSurface,
                 indicator = { tabPositions ->
                     TabRowDefaults.Indicator(
                         modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTabIndex]),
                         height = 3.dp,
-                        color = PrimaryYellow
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             ) {
@@ -88,7 +88,7 @@ fun ProfileScreen(
                             Text(
                                 text = title,
                                 fontWeight = if (selectedTabIndex == index) FontWeight.Bold else FontWeight.Normal,
-                                color = if (selectedTabIndex == index) DarkCharcoal else MediumGrey
+                                color = if (selectedTabIndex == index) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     )
@@ -188,7 +188,7 @@ private fun ProfileHeader(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp))
-            .background(SoftBeige)
+            .background(MaterialTheme.colorScheme.surface)
             .padding(horizontal = 16.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -202,7 +202,7 @@ private fun ProfileHeader(
                     Icon(
                         imageVector = Icons.Default.Settings,
                         contentDescription = "Settings",
-                        tint = DarkGreen
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             }
@@ -227,12 +227,12 @@ private fun ProfileHeader(
                     modifier = Modifier
                         .fillMaxSize()
                         .clip(CircleShape)
-                        .background(DarkGreen),
+                        .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = (userProfile?.displayName?.firstOrNull()?.uppercase() ?: "?"),
-                        color = OffWhite,
+                        color = MaterialTheme.colorScheme.onPrimary,
                         fontSize = 40.sp,
                         fontWeight = FontWeight.Bold
                     )
@@ -246,7 +246,7 @@ private fun ProfileHeader(
             text = userProfile?.displayName ?: "Reader",
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
-            color = DarkCharcoal
+            color = MaterialTheme.colorScheme.onBackground
         )
 
         userProfile?.pronouns?.let { pronouns ->
@@ -254,7 +254,7 @@ private fun ProfileHeader(
                 Text(
                     text = pronouns,
                     fontSize = 14.sp,
-                    color = SageGreen
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Spacer(modifier = Modifier.height(4.dp))
             }
@@ -265,7 +265,7 @@ private fun ProfileHeader(
                 Text(
                     text = bio,
                     fontSize = 16.sp,
-                    color = MediumGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = TextAlign.Center,
@@ -278,7 +278,7 @@ private fun ProfileHeader(
 
         Text(
             text = "Edit Profile",
-            color = DarkGreen,
+            color = MaterialTheme.colorScheme.primary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium,
             modifier = Modifier.clickable { onEditProfile() }
@@ -305,7 +305,7 @@ private fun BooksListTab(
                 modifier = Modifier
                     .size(64.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(LightSage),
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
@@ -318,14 +318,14 @@ private fun BooksListTab(
                 text = emptyTitle,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = DarkCharcoal,
+                color = MaterialTheme.colorScheme.onBackground,
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = emptySubtitle,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MediumGrey,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
         }
@@ -357,12 +357,12 @@ private fun CurrentlyReadingSection(
             text = "Currently Reading",
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
-            color = DarkCharcoal
+            color = MaterialTheme.colorScheme.onBackground
         )
         books.forEach { entry ->
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = OffWhite),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                 shape = RoundedCornerShape(8.dp),
                 elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
@@ -385,14 +385,14 @@ private fun CurrentlyReadingSection(
                             text = entry.title,
                             style = MaterialTheme.typography.bodyLarge,
                             fontWeight = FontWeight.Bold,
-                            color = DarkCharcoal,
+                            color = MaterialTheme.colorScheme.onBackground,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = entry.author,
                             style = MaterialTheme.typography.bodySmall,
-                            color = MediumGrey,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
@@ -401,7 +401,7 @@ private fun CurrentlyReadingSection(
                             Text(
                                 text = "Started: ${dateFormat.format(Date(entry.dateStarted))}",
                                 style = MaterialTheme.typography.labelSmall,
-                                color = SageGreen
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }

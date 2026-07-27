@@ -21,10 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.readr.app.data.local.entity.UserProfileEntity
-import com.readr.app.ui.theme.DarkCharcoal
-import com.readr.app.ui.theme.DarkGreen
-import com.readr.app.ui.theme.MediumGrey
-import com.readr.app.ui.theme.PrimaryYellow
+import com.readr.app.ui.theme.VibrantBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,7 +50,7 @@ fun EditProfileBottomSheet(
                 text = "Edit Profile",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                color = DarkCharcoal
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             OutlinedTextField(
@@ -63,8 +60,8 @@ fun EditProfileBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = DarkGreen,
-                    cursorColor = DarkGreen
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    cursorColor = MaterialTheme.colorScheme.primary
                 )
             )
 
@@ -74,10 +71,10 @@ fun EditProfileBottomSheet(
                 label = { Text("Bio (max 160 characters)") },
                 modifier = Modifier.fillMaxWidth().height(120.dp),
                 maxLines = 4,
-                supportingText = { Text("${bio.length}/160", color = MediumGrey, fontSize = 11.sp) },
+                supportingText = { Text("${bio.length}/160", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = DarkGreen,
-                    cursorColor = DarkGreen
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    cursorColor = MaterialTheme.colorScheme.primary
                 )
             )
 
@@ -87,10 +84,10 @@ fun EditProfileBottomSheet(
                 label = { Text("Pronouns (max 20 characters)") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
-                supportingText = { Text("${pronouns.length}/20", color = MediumGrey, fontSize = 11.sp) },
+                supportingText = { Text("${pronouns.length}/20", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 11.sp) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = DarkGreen,
-                    cursorColor = DarkGreen
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    cursorColor = MaterialTheme.colorScheme.primary
                 )
             )
 
@@ -101,8 +98,8 @@ fun EditProfileBottomSheet(
                 modifier = Modifier.fillMaxWidth().height(48.dp),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = PrimaryYellow,
-                    contentColor = DarkCharcoal
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 )
             ) {
                 Text(text = "Save", fontWeight = FontWeight.Bold, fontSize = 16.sp)

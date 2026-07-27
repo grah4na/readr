@@ -19,11 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.readr.app.data.model.ReadingEntry
-import com.readr.app.ui.theme.DarkCharcoal
-import com.readr.app.ui.theme.DarkGreen
-import com.readr.app.ui.theme.MediumGrey
-import com.readr.app.ui.theme.OffWhite
-import com.readr.app.ui.theme.PrimaryYellow
+import com.readr.app.ui.theme.VibrantBlue
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -36,7 +32,7 @@ fun BookListItem(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = OffWhite),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -59,14 +55,14 @@ fun BookListItem(
                     text = entry.title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
-                    color = DarkCharcoal,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = entry.author,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MediumGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -75,7 +71,7 @@ fun BookListItem(
                     Text(
                         text = "Finished: ${dateFormat.format(Date(entry.dateFinished))}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MediumGrey
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 if (entry.dateAdded > 0 && entry.dateFinished == 0L) {
@@ -83,21 +79,21 @@ fun BookListItem(
                     Text(
                         text = "Added: ${dateFormat.format(Date(entry.dateAdded))}",
                         style = MaterialTheme.typography.labelSmall,
-                        color = MediumGrey
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 }
                 if (entry.rating > 0 && entry.dateFinished > 0) {
                     Text(
                         text = "★".repeat(entry.rating) + "☆".repeat(5 - entry.rating),
                         fontSize = 12.sp,
-                        color = PrimaryYellow
+                        color = MaterialTheme.colorScheme.primary
                     )
                 }
             }
             if (onStartReading != null) {
                 OutlinedButton(
                     onClick = onStartReading,
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = DarkGreen),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.widthIn(min = 90.dp)
                 ) {
                     Text("Start Reading", fontSize = 11.sp)

@@ -15,13 +15,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.readr.app.data.model.ProfileStats
-import com.readr.app.ui.theme.DarkCharcoal
-import com.readr.app.ui.theme.LightGrey
-import com.readr.app.ui.theme.MediumGrey
-import com.readr.app.ui.theme.OffWhite
-import com.readr.app.ui.theme.PrimaryYellow
-import com.readr.app.ui.theme.LightSage
-import com.readr.app.ui.theme.SageGreen
+import com.readr.app.ui.theme.VibrantBlue
 
 @Composable
 fun StatsRow(stats: ProfileStats, modifier: Modifier = Modifier) {
@@ -48,7 +42,7 @@ fun StatsRow(stats: ProfileStats, modifier: Modifier = Modifier) {
             StatCard(
                 label = "Avg Rating",
                 value = "${"%.1f".format(stats.avgRating)} ★",
-                valueColor = PrimaryYellow,
+                valueColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.weight(1f)
             )
             StatCard(
@@ -60,13 +54,13 @@ fun StatsRow(stats: ProfileStats, modifier: Modifier = Modifier) {
         if (stats.longestBookTitle != null) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = LightSage),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
                     text = "Longest read: ${stats.longestBookTitle} (${stats.longestBookPages} pages)",
                     style = MaterialTheme.typography.bodySmall,
-                    color = SageGreen,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                 )
             }
@@ -74,13 +68,13 @@ fun StatsRow(stats: ProfileStats, modifier: Modifier = Modifier) {
         if (stats.booksReading > 0) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = LightSage),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)),
                 shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
                     text = "Currently reading: ${stats.booksReading} book${if (stats.booksReading != 1) "s" else ""}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = SageGreen,
+                    color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
                 )
             }
@@ -93,11 +87,11 @@ private fun StatCard(
     label: String,
     value: String,
     modifier: Modifier = Modifier,
-    valueColor: androidx.compose.ui.graphics.Color = DarkCharcoal
+    valueColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.onBackground
 ) {
     Card(
-        modifier = modifier.border(1.dp, LightGrey, RoundedCornerShape(12.dp)),
-        colors = CardDefaults.cardColors(containerColor = OffWhite),
+        modifier = modifier.border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(12.dp)),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(12.dp)
     ) {
         Column(
@@ -114,7 +108,7 @@ private fun StatCard(
             Text(
                 text = label,
                 fontSize = 10.sp,
-                color = MediumGrey,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
         }
