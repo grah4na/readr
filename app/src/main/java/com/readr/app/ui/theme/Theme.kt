@@ -7,6 +7,7 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
@@ -25,19 +26,21 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = NavSelected,
+    primary = VibrantBlue,
     onPrimary = White,
-    secondary = BannerTextPurple,
+    secondary = VibrantBlue,
     onSecondary = White,
-    tertiary = SubtitleGrey,
+    tertiary = VibrantBlue,
     onTertiary = White,
     background = AppBackground,
     onBackground = DeepBlack,
     surface = White,
     onSurface = DeepBlack,
-    surfaceVariant = BannerPurple,
+    surfaceVariant = Color(0xFFF0F4FF),
     onSurfaceVariant = DeepBlack,
-    outline = NavUnselected
+    outline = NavUnselected,
+    error = Color(0xFFBA1A1A),
+    onError = White
 )
 
 @Composable
