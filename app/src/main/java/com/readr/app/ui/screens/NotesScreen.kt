@@ -22,8 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.readr.app.data.local.entity.NoteEntity
 import com.readr.app.data.model.ReadingEntry
 import com.readr.app.ui.components.AddNoteSheet
-import com.readr.app.ui.theme.DarkGreen
-import com.readr.app.ui.theme.SoftBeige
+import com.readr.app.ui.theme.VibrantBlue
 import com.readr.app.viewmodel.NotesViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -75,13 +74,13 @@ fun NotesScreen(
                 TabRow(
                     selectedTabIndex = selectedTab,
                     containerColor = Color.Transparent,
-                    contentColor = DarkGreen,
+                    contentColor = MaterialTheme.colorScheme.primary,
                     divider = {},
                     indicator = { tabPositions ->
                         if (selectedTab < tabPositions.size) {
                             TabRowDefaults.Indicator(
                                 modifier = Modifier.tabIndicatorOffset(tabPositions[selectedTab]),
-                                color = DarkGreen
+                                color = MaterialTheme.colorScheme.primary
                             )
                         }
                     }
@@ -138,7 +137,7 @@ fun NotesScreen(
                     .widthIn(min = 200.dp)
                     .height(48.dp)
                     .align(Alignment.CenterHorizontally),
-                colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(24.dp),
                 contentPadding = PaddingValues(horizontal = 24.dp)
             ) {
@@ -221,7 +220,7 @@ private fun NoteCardWithEntry(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        colors = CardDefaults.cardColors(containerColor = SoftBeige),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = RoundedCornerShape(16.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {

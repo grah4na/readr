@@ -24,12 +24,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.readr.app.data.model.SearchResult
-import com.readr.app.ui.theme.DarkCharcoal
-import com.readr.app.ui.theme.DarkGreen
-import com.readr.app.ui.theme.MediumGrey
-import com.readr.app.ui.theme.OffWhite
-import com.readr.app.ui.theme.PrimaryYellow
-import com.readr.app.ui.theme.SageGreen
+import com.readr.app.ui.theme.VibrantBlue
 import com.readr.app.viewmodel.SearchViewModel
 import kotlinx.coroutines.launch
 
@@ -80,7 +75,7 @@ fun SearchScreen(
                 colors = TextFieldDefaults.outlinedTextFieldColors(
                     containerColor = MaterialTheme.colorScheme.surface,
                     unfocusedBorderColor = Color.Transparent,
-                    focusedBorderColor = PrimaryYellow
+                    focusedBorderColor = MaterialTheme.colorScheme.primary
                 ),
                 singleLine = true
             )
@@ -239,7 +234,7 @@ fun RecommendedBookItemPlaceholder(index: Int) {
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(Icons.Default.Star, contentDescription = null, tint = PrimaryYellow, modifier = Modifier.size(14.dp))
+                    Icon(Icons.Default.Star, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(14.dp))
                     Text(
                         text = " ${ratings[index % ratings.size]}",
                         style = MaterialTheme.typography.labelSmall
@@ -262,7 +257,7 @@ fun SearchResultItem(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = OffWhite),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -285,21 +280,21 @@ fun SearchResultItem(
                     text = result.title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
-                    color = DarkCharcoal,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = result.author,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MediumGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = "${result.pages} pages",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MediumGrey
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -308,8 +303,8 @@ fun SearchResultItem(
                         modifier = Modifier.height(28.dp),
                         contentPadding = PaddingValues(horizontal = 8.dp),
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = PrimaryYellow.copy(alpha = 0.15f),
-                            contentColor = DarkCharcoal
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
+                            contentColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
                         Icon(Icons.Default.BookmarkBorder, contentDescription = null, modifier = Modifier.size(12.dp))
@@ -321,8 +316,8 @@ fun SearchResultItem(
                         modifier = Modifier.height(28.dp),
                         contentPadding = PaddingValues(horizontal = 8.dp),
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = SageGreen.copy(alpha = 0.15f),
-                            contentColor = DarkGreen
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            contentColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
                         Text("Reading", fontSize = 9.sp, maxLines = 1)
@@ -332,8 +327,8 @@ fun SearchResultItem(
                         modifier = Modifier.height(28.dp),
                         contentPadding = PaddingValues(horizontal = 8.dp),
                         colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = DarkGreen.copy(alpha = 0.15f),
-                            contentColor = DarkGreen
+                            containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                            contentColor = MaterialTheme.colorScheme.primary
                         )
                     ) {
                         Icon(Icons.Default.Check, contentDescription = null, modifier = Modifier.size(12.dp))
