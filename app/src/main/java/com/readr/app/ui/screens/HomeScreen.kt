@@ -40,7 +40,7 @@ fun HomeScreen(
     val trendingBooks = wantToRead.take(5)
 
     Scaffold(
-        containerColor = AppBackground
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
@@ -101,18 +101,18 @@ fun HomeHeader() {
                     fontWeight = FontWeight.Bold,
                     fontSize = 24.sp
                 ),
-                color = DeepBlack
+                color = MaterialTheme.colorScheme.onBackground
             )
             Text(
                 text = "Discover Your Next Great Read",
                 style = MaterialTheme.typography.bodyMedium,
-                color = SubtitleGrey
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Icon(
             imageVector = Icons.Default.NotificationsNone,
             contentDescription = "Notifications",
-            tint = DeepBlack,
+            tint = MaterialTheme.colorScheme.onBackground,
             modifier = Modifier.size(24.dp)
         )
     }
@@ -131,13 +131,13 @@ fun SectionHeader(title: String, subtitle: String? = null) {
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             ),
-            color = DeepBlack
+            color = MaterialTheme.colorScheme.onBackground
         )
         if (subtitle != null) {
             Text(
                 text = subtitle,
                 style = MaterialTheme.typography.bodySmall,
-                color = SubtitleGrey
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -168,14 +168,14 @@ fun TrendingBookItem(book: ReadingEntry, onClick: () -> Unit) {
         Text(
             text = book.title,
             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-            color = DeepBlack,
+            color = MaterialTheme.colorScheme.onBackground,
             maxLines = 2,
             overflow = TextOverflow.Ellipsis
         )
         Text(
             text = book.author,
             style = MaterialTheme.typography.bodySmall,
-            color = SubtitleGrey,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis
         )
@@ -189,7 +189,7 @@ fun SwapBanner() {
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = BannerPurple)
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(
             modifier = Modifier
@@ -202,18 +202,18 @@ fun SwapBanner() {
                 Text(
                     text = "Swap your old books",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = DeepBlack
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Trade out your physical books\nfor new ones now!",
                     style = MaterialTheme.typography.bodySmall,
-                    color = SubtitleGrey
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = { /* TODO */ },
-                    colors = ButtonDefaults.buttonColors(containerColor = White),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.surface),
                     shape = RoundedCornerShape(20.dp),
                     contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
@@ -221,14 +221,14 @@ fun SwapBanner() {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "Swap now",
-                            color = DeepBlack,
+                            color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.labelLarge
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Icon(
                             imageVector = Icons.Default.TrendingFlat,
                             contentDescription = null,
-                            tint = DeepBlack,
+                            tint = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -244,13 +244,13 @@ fun SwapBanner() {
                 Box(
                     modifier = Modifier
                         .size(40.dp, 60.dp)
-                        .background(White, RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(4.dp))
                         .offset(x = (-10).dp, y = (-5).dp)
                 )
                 Box(
                     modifier = Modifier
                         .size(40.dp, 60.dp)
-                        .background(Color(0xFFE0E0E0), RoundedCornerShape(4.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(4.dp))
                         .offset(x = 10.dp, y = 5.dp)
                 )
             }
@@ -270,11 +270,10 @@ fun BookClubRow() {
                 modifier = Modifier
                     .size(56.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFFE0E0E0)),
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentAlignment = Alignment.Center
             ) {
-                // Placeholder avatar image or initials
-                Text(text = "C$index", color = SubtitleGrey)
+                Text(text = "C$index", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

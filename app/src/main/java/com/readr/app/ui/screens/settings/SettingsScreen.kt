@@ -31,20 +31,20 @@ fun SettingsScreen(
     val topBooks by viewModel.topBooks.collectAsState()
 
     Scaffold(
-        containerColor = OffWhite,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Settings", fontWeight = FontWeight.Bold, color = DarkCharcoal) },
+                title = { Text("Settings", fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground) },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
                             contentDescription = "Back",
-                            tint = DarkCharcoal
+                            tint = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = SoftBeige)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
             )
         }
     ) { innerPadding ->
@@ -60,13 +60,13 @@ fun SettingsScreen(
                     text = "My Top 4 Books",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    color = DarkCharcoal
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = "Your highest rated books",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MediumGrey
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
@@ -82,13 +82,13 @@ fun SettingsScreen(
                             text = "No top books yet",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
-                            color = DarkCharcoal
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
                             text = "Finish and rate some books to see your top picks here.",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = MediumGrey
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -105,7 +105,7 @@ fun SettingsScreen(
 private fun TopBookCard(entry: ReadingEntry) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = OffWhite),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
@@ -128,14 +128,14 @@ private fun TopBookCard(entry: ReadingEntry) {
                     text = entry.title,
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
-                    color = DarkCharcoal,
+                    color = MaterialTheme.colorScheme.onBackground,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
                 Text(
                     text = entry.author,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MediumGrey,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -144,7 +144,7 @@ private fun TopBookCard(entry: ReadingEntry) {
                         Icon(
                             imageVector = Icons.Default.Star,
                             contentDescription = null,
-                            tint = PrimaryYellow,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(16.dp)
                         )
                         Spacer(modifier = Modifier.width(4.dp))
@@ -152,7 +152,7 @@ private fun TopBookCard(entry: ReadingEntry) {
                             text = "${entry.rating}/5",
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
-                            color = PrimaryYellow
+                            color = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
