@@ -81,8 +81,7 @@ import com.readr.app.ui.share.CardType
 import com.readr.app.ui.share.CoverBitmapLoader
 import com.readr.app.ui.share.ShareBottomSheet
 import com.readr.app.ui.share.ShareCardRenderer
-import com.readr.app.ui.theme.DarkGreen
-import com.readr.app.ui.theme.SageGreen
+import com.readr.app.ui.theme.VibrantBlue
 import com.readr.app.viewmodel.EntryDetailViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -406,7 +405,7 @@ fun EntryDetailScreen(
                         TabRow(
                             selectedTabIndex = selectedTab,
                             containerColor = MaterialTheme.colorScheme.surface,
-                            contentColor = Color(0xFFFCC024)
+                            contentColor = MaterialTheme.colorScheme.onSurface
                         ) {
                             tabs.forEachIndexed { index, title ->
                                 Tab(
@@ -416,7 +415,7 @@ fun EntryDetailScreen(
                                         Text(
                                             text = title,
                                             fontWeight = if (selectedTab == index) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (selectedTab == index) Color(0xFFFCC024) else Color.Gray
+                                            color = if (selectedTab == index) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                         )
                                     }
                                 )
@@ -483,12 +482,12 @@ private fun QuotesTab(
         ) {
             Button(
                 onClick = onAddClick,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFCC024)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Add Quote", color = Color.Black, style = MaterialTheme.typography.labelSmall)
+                Text("Add Quote", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall)
             }
         }
         if (quotes.isEmpty()) {
@@ -510,7 +509,7 @@ private fun QuotesTab(
                         Icon(
                             Icons.Default.Share,
                             contentDescription = "Share quote",
-                            tint = SageGreen
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
@@ -534,12 +533,12 @@ private fun ReviewsTab(
         ) {
             Button(
                 onClick = onAddClick,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFCC024)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Add Review", color = Color.Black, style = MaterialTheme.typography.labelSmall)
+                Text("Add Review", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall)
             }
         }
         if (review == null) {
@@ -560,9 +559,9 @@ private fun ReviewsTab(
             OutlinedButton(
                 onClick = onShareReview,
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = DarkGreen
+                    contentColor = MaterialTheme.colorScheme.primary
                 ),
-                border = BorderStroke(1.dp, DarkGreen),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -573,9 +572,9 @@ private fun ReviewsTab(
             OutlinedButton(
                 onClick = onShareFinished,
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = DarkGreen
+                    contentColor = MaterialTheme.colorScheme.primary
                 ),
-                border = BorderStroke(1.dp, DarkGreen),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(Icons.Default.Share, contentDescription = null, modifier = Modifier.size(16.dp))
@@ -601,12 +600,12 @@ private fun NotesTab(
         ) {
             Button(
                 onClick = onAddClick,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFCC024)),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 contentPadding = PaddingValues(horizontal = 12.dp, vertical = 4.dp)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(16.dp))
                 Spacer(modifier = Modifier.width(4.dp))
-                Text("Add Note", color = Color.Black, style = MaterialTheme.typography.labelSmall)
+                Text("Add Note", color = MaterialTheme.colorScheme.onPrimary, style = MaterialTheme.typography.labelSmall)
             }
         }
 

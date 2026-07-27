@@ -15,6 +15,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -55,7 +56,7 @@ fun AddReviewSheet(
         ) {
             Text(
                 text = "Add Review",
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -64,7 +65,7 @@ fun AddReviewSheet(
                     Icon(
                         imageVector = if (i <= rating) Icons.Filled.Star else Icons.Filled.StarBorder,
                         contentDescription = "Star $i",
-                        tint = Color(0xFFFCC024),
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .width(36.dp)
                             .clickable { rating = i }
@@ -84,14 +85,14 @@ fun AddReviewSheet(
 
             Text(
                 text = "Spoiler control",
-                style = androidx.compose.material3.MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Hide until reader reaches", style = androidx.compose.material3.MaterialTheme.typography.bodySmall)
+                Text("Hide until reader reaches", style = MaterialTheme.typography.bodySmall)
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
                     text = "${(spoilerPercent * 100).toInt()}%",
-                    style = androidx.compose.material3.MaterialTheme.typography.bodySmall
+                    style = MaterialTheme.typography.bodySmall
                 )
             }
             Slider(
@@ -125,10 +126,10 @@ fun AddReviewSheet(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = rating > 0,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFCC024)
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text("Save Review", color = Color.Black)
+                Text("Save Review", color = MaterialTheme.colorScheme.onPrimary)
             }
             Spacer(modifier = Modifier.height(16.dp))
         }

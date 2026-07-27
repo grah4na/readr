@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -42,7 +43,7 @@ fun AddQuoteBottomSheet(
         ) {
             Text(
                 text = "Add Quote",
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
@@ -73,10 +74,10 @@ fun AddQuoteBottomSheet(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = text.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFCC024)
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text("Save Quote", color = Color.Black)
+                Text("Save Quote", color = MaterialTheme.colorScheme.onPrimary)
             }
             Spacer(modifier = Modifier.height(16.dp))
         }

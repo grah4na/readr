@@ -49,7 +49,7 @@ fun ReviewCard(
                     Icon(
                         imageVector = Icons.Filled.Star,
                         contentDescription = null,
-                        tint = if (i <= review.rating) Color(0xFFFCC024) else Color(0xFFF0F0F0),
+                        tint = if (i <= review.rating) MaterialTheme.colorScheme.primary else Color(0xFFF0F0F0),
                         modifier = Modifier.width(20.dp)
                     )
                 }

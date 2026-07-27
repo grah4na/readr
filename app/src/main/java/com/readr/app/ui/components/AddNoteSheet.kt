@@ -11,6 +11,7 @@ import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
@@ -56,7 +57,7 @@ fun AddNoteSheet(
         ) {
             Text(
                 text = "Add Note",
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium
+                style = MaterialTheme.typography.titleMedium
             )
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -90,7 +91,7 @@ fun AddNoteSheet(
 
             Text(
                 text = "Note type",
-                style = androidx.compose.material3.MaterialTheme.typography.labelMedium
+                style = MaterialTheme.typography.labelMedium
             )
             Column(modifier = Modifier.selectableGroup()) {
                 noteTypes.forEach { (value, label) ->
@@ -128,10 +129,10 @@ fun AddNoteSheet(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = text.isNotBlank(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFCC024)
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text("Save Note", color = Color.Black)
+                Text("Save Note", color = MaterialTheme.colorScheme.onPrimary)
             }
             Spacer(modifier = Modifier.height(16.dp))
         }

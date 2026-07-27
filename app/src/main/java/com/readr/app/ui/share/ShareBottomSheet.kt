@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -23,9 +24,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.readr.app.ui.theme.DarkCharcoal
-import com.readr.app.ui.theme.DarkGreen
-import com.readr.app.ui.theme.PrimaryYellow
+import com.readr.app.ui.theme.VibrantBlue
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,8 +62,8 @@ fun ShareBottomSheet(
                 onClick = { ShareHelper.shareToInstagramStories(context, bitmap) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = PrimaryYellow,
-                    contentColor = DarkCharcoal
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {
@@ -75,7 +74,7 @@ fun ShareBottomSheet(
                 onClick = { ShareHelper.shareGeneric(context, bitmap) },
                 modifier = Modifier.fillMaxWidth(),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = DarkGreen
+                    contentColor = MaterialTheme.colorScheme.primary
                 ),
                 shape = RoundedCornerShape(12.dp)
             ) {

@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,7 +34,7 @@ fun CommunityNotesBanner(communityNotes: List<CommunityNoteEntity>) {
         modifier = Modifier
             .fillMaxWidth()
             .background(
-                color = Color(0xFFFCC024),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                 shape = RoundedCornerShape(8.dp)
             )
             .padding(12.dp)
@@ -45,19 +46,19 @@ fun CommunityNotesBanner(communityNotes: List<CommunityNoteEntity>) {
             Icon(
                 imageVector = Icons.Default.Info,
                 contentDescription = null,
-                tint = Color.Black,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 4.dp)
             )
             Text(
                 text = "Community notes",
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 14.sp
             )
         }
         Text(
             text = summary,
-            color = Color.Black,
+            color = MaterialTheme.colorScheme.onBackground,
             fontSize = 13.sp,
             maxLines = 3,
             overflow = TextOverflow.Ellipsis,

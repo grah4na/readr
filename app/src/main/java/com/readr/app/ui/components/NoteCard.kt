@@ -52,7 +52,7 @@ fun NoteCard(note: NoteEntity) {
                     text = note.type.replace("_", " "),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFFFCC024)
+                    color = MaterialTheme.colorScheme.primary
                 )
                 Text(
                     text = dateFormat.format(Date(note.createdAt)),

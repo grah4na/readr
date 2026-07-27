@@ -58,10 +58,10 @@ fun BookPreview(
                     context.startActivity(intent)
                 },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFFFCC024)
+                    containerColor = MaterialTheme.colorScheme.primary
                 )
             ) {
-                Text("Search Internet Archive", color = Color.Black)
+                Text("Search Internet Archive", color = MaterialTheme.colorScheme.onPrimary)
             }
         }
     } else {
@@ -99,7 +99,7 @@ fun BookPreview(
             if (isLoading) {
                 CircularProgressIndicator(
                     modifier = Modifier.align(Alignment.Center),
-                    color = Color(0xFFFCC024)
+                    color = MaterialTheme.colorScheme.primary
                 )
             }
         }

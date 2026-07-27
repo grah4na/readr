@@ -51,7 +51,7 @@ fun ReadrBottomNavBar(
     ) {
         items.forEachIndexed { index, screen ->
             val isSelected = index == selectedIndex
-            val contentColor = if (isSelected) NavSelected else NavUnselected
+            val contentColor = if (isSelected) MaterialTheme.colorScheme.primary else NavUnselected
 
             Column(
                 modifier = Modifier
