@@ -36,8 +36,8 @@ fun NavGraph(navController: NavHostController) {
         }
         composable(Screen.Add.route) {
             AddScreen(
-                onNavigateToManualEntry = {
-                    navController.navigate(Screen.ManualEntry.route)
+                onEntrySaved = { entryId ->
+                    navController.navigate(Screen.EntryDetail.createRoute(entryId))
                 }
             )
         }

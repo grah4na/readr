@@ -1,5 +1,6 @@
 package com.readr.app.ui.screens
 
+import android.app.Application
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
@@ -17,25 +18,32 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.readr.app.ui.theme.DarkGreen
-import com.readr.app.ui.theme.LightSage
-import com.readr.app.ui.theme.PrimaryYellow
-import com.readr.app.ui.theme.SoftBeige
+import com.readr.app.ReadrApp
+import com.readr.app.data.model.EntryType
+import com.readr.app.data.model.ReadingEntry
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddScreen(
-    onNavigateToManualEntry: () -> Unit = {}
+    onEntrySaved: (Long) -> Unit = {}
 ) {
+    val context = LocalContext.current
+    val repo = (context.applicationContext as ReadrApp).repository
+    val scope = rememberCoroutineScope()
+
     var title by remember { mutableStateOf("") }
     var author by remember { mutableStateOf("") }
     var genre by remember { mutableStateOf("Fiction") }
     var format by remember { mutableStateOf("Paperback") }
     var rating by remember { mutableIntStateOf(0) }
     var thoughts by remember { mutableStateOf("") }
+    var isSaving by remember { mutableStateOf(false) }
+    var error by remember { mutableStateOf<String?>(null) }
 
     LazyColumn(
         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -61,18 +69,17 @@ fun AddScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                // Cover Placeholder
                 Box(
                     modifier = Modifier
                         .size(100.dp, 150.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(LightSage.copy(alpha = 0.3f))
-                        .border(1.dp, LightSage, RoundedCornerShape(12.dp)),
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                        .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(12.dp)),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(Icons.Default.Add, contentDescription = null, tint = DarkGreen)
-                        Text("Add Cover", style = MaterialTheme.typography.labelSmall, color = DarkGreen)
+                        Icon(Icons.Default.Add, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Text("Add Cover", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     }
                 }
 
@@ -104,7 +111,7 @@ fun AddScreen(
                             Icon(
                                 if (index < rating) Icons.Default.Star else Icons.Default.StarBorder,
                                 contentDescription = null,
-                                tint = if (index < rating) PrimaryYellow else Color.LightGray
+                                tint = if (index < rating) MaterialTheme.colorScheme.primary else Color.LightGray
                             )
                         }
                     }
@@ -123,22 +130,67 @@ fun AddScreen(
                     placeholder = { Text("Share your thoughts...", fontSize = 14.sp) },
                     shape = RoundedCornerShape(16.dp),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
-                        containerColor = SoftBeige,
+                        containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         unfocusedBorderColor = Color.Transparent,
-                        focusedBorderColor = DarkGreen
+                        focusedBorderColor = MaterialTheme.colorScheme.primary
                     )
                 )
             }
         }
 
+        error?.let {
+            item {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer
+                    )
+                ) {
+                    Text(
+                        text = it,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.padding(12.dp),
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+        }
+
         item {
             Button(
-                onClick = { /* Save */ },
+                onClick = {
+                    if (title.isBlank()) {
+                        error = "Title is required"
+                        return@Button
+                    }
+                    error = null
+                    isSaving = true
+                    scope.launch {
+                        val entry = ReadingEntry(
+                            type = EntryType.BOOK,
+                            title = title.trim(),
+                            author = author.trim().ifBlank { "Unknown" },
+                            pages = 0,
+                            coverUrl = ""
+                        )
+                        val id = repo.insertEntry(entry)
+                        isSaving = false
+                        onEntrySaved(id)
+                    }
+                },
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = DarkGreen),
+                enabled = !isSaving,
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(16.dp)
             ) {
-                Text("Add to Library", color = Color.White, fontWeight = FontWeight.Bold)
+                if (isSaving) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                }
+                Text("Add to Library", fontWeight = FontWeight.Bold)
             }
         }
     }
@@ -156,7 +208,7 @@ fun SimpleTextField(value: String, onValueChange: (String) -> Unit, label: Strin
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.LightGray.copy(alpha = 0.5f),
-                focusedIndicatorColor = DarkGreen
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary
             ),
             singleLine = true
         )
